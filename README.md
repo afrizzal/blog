@@ -69,7 +69,7 @@ Lalu upload **isi folder `dist/`** (bukan foldernya) ke document root subdomain
 
 ## Deploy otomatis (push → live)
 
-Repo: <https://github.com/afrizzal/blog>. Setiap **push ke `master`**, GitHub Actions
+Repo: <https://github.com/afrizzal/aff-blog>. Setiap **push ke `master`**, GitHub Actions
 (`.github/workflows/deploy.yml`) otomatis: build Astro (Node 22) → upload `dist/` via **FTPS**
 ke document root `blog.afrizzal.pro`. Jadi alur menulis cukup:
 
