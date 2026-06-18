@@ -67,6 +67,41 @@ Lalu upload **isi folder `dist/`** (bukan foldernya) ke document root subdomain
 `.htaccess` (force HTTPS + www→non-www + halaman 404) sudah ikut ter-build dari
 `public/.htaccess`.
 
+## Deploy otomatis (push → live)
+
+Repo: <https://github.com/afrizzal/blog>. Setiap **push ke `master`**, GitHub Actions
+(`.github/workflows/deploy.yml`) otomatis: build Astro (Node 22) → upload `dist/` via **FTPS**
+ke document root `blog.afrizzal.pro`. Jadi alur menulis cukup:
+
+```
+./new-post.ps1 "Judul"
+git add -A && git commit -m "post: judul"
+git push            # <- langsung ter-deploy
+```
+
+### Secret yang harus diisi sekali (repo → Settings → Secrets and variables → Actions)
+
+| Secret | Isi |
+|---|---|
+| `FTP_HOST` | host FTP (mis. `ftp.afrizzal.pro` atau IP server) |
+| `FTP_USERNAME` | user FTP (cPanel → FTP Accounts) |
+| `FTP_PASSWORD` | password FTP |
+| `FTP_SERVER_DIR` | Document Root subdomain, **diakhiri `/`** (mis. `/blog.afrizzal.pro/`) |
+
+Atau lewat CLI (nilai tidak tersimpan di chat):
+
+```
+gh secret set FTP_HOST
+gh secret set FTP_USERNAME
+gh secret set FTP_PASSWORD
+gh secret set FTP_SERVER_DIR
+```
+
+Run pertama tanpa secret akan gagal di langkah FTP (build tetap sukses) — itu wajar.
+Setelah secret terisi: `git push` lagi, atau buka tab **Actions → Run workflow**.
+
+> Jika host tidak mendukung FTPS, ubah `protocol: ftps` → `ftp` di `deploy.yml`.
+
 ## Yang sudah termasuk
 
 - Daftar post + halaman artikel (typografi long-form, tema dark senada porto)
