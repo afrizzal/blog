@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import Pagination from '../components/Pagination.astro';
+import { getPublishedPosts } from '../utils/posts';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+// Paginated home page. Page 1 is "/", page 2 is "/2", etc.
+export async function getStaticPaths({ paginate }) {
+  const posts = await getPublishedPosts();
+  return paginate(posts, { pageSize: 5 });
+}
+
+const { page } = Astro.props;
+---
+
+<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+  <section class="hero-sm">
+    <p class="eyebrow">Blog</p>
+    <h1>Writing<span class="accent">.</span></h1>
+    <p class="lead">
+      Notes on IT leadership, CRM &amp; revenue systems, advertising, and AI automation.
+    </p>
+  </section>
+
+  <section class="container post-list">
+    {page.data.map((post) => <PostCard post={post} />)}
+    {page.data.length === 0 && <p class="muted">No posts yet — check back soon.</p>}
+    <Pagination
+      prevUrl={page.url.prev}
+      nextUrl={page.url.next}
+      currentPage={page.currentPage}
+      lastPage={page.lastPage}
+    />
+  </section>
+</BaseLayout>

@@ -1,0 +1,154 @@
+/* ============================================================
+   AFRIZZAL — Design Tokens
+   GitHub-inspired dark developer portfolio (Primer-flavoured)
+   ============================================================ */
+
+:root {
+  /* ── Surfaces (deep navy base, slightly warmer than vanilla GitHub) ── */
+  --bg-main:        #060b17;   /* page base */
+  --bg-card:        #0d1526;   /* card surface */
+  --bg-elevated:    #111d33;   /* hovered/elevated card */
+  --bg-subtle:      #172036;   /* hovered nav item / chip */
+
+  /* ── Borders ── */
+  --border:         #243048;   /* default card border */
+  --border-subtle:  #172036;   /* dividers */
+  --border-soft:    rgba(36, 48, 72, 0.55);
+
+  /* ── Text ── */
+  --text-primary:   #e6edf3;   /* headings, primary copy */
+  --text-secondary: #8b949e;   /* body */
+  --text-muted:     #6e7681;   /* captions, mono labels */
+
+  /* ── Accent palette (GitHub Primer-aligned) ── */
+  --accent:         #3b82f6;   /* blue 500 */
+  --accent-hover:   #60a5fa;   /* blue 400 */
+  --accent-subtle:  rgba(59, 130, 246, 0.14);
+
+  --green:          #3fb950;   /* success / "open" */
+  --green-subtle:   rgba(63, 185, 80, 0.12);
+  --orange:         #d29922;   /* warning / Oracle */
+  --purple:         #a78bfa;   /* tag accent */
+  --purple-bright:  #8b5cf6;   /* glow source */
+  --purple-subtle:  rgba(139, 92, 246, 0.14);
+  --cyan:           #22d3ee;   /* hero accent */
+  --pink:           #f472b6;
+
+  /* ── Ambient glow tokens (used in radial-gradients) ── */
+  --glow-purple:    rgba(124, 58, 237, 0.28);
+  --glow-purple-lg: rgba(139, 92, 246, 0.18);
+  --glow-teal:      rgba(34, 211, 238, 0.10);
+  --glow-teal-lg:   rgba(6, 182, 212, 0.07);
+
+  /* ── Radii ── */
+  --radius-sm:    6px;
+  --radius-md:    8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-pill:100px;
+
+  /* ── Spacing scale (4px base) ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10:40px;
+  --space-12:48px;
+  --space-16:64px;
+  --space-20:80px;
+  --space-24:96px;
+
+  /* ── Typography ── */
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+
+  /* Type scale (clamp = fluid) */
+  --fs-display: clamp(2.5rem, 6vw, 4.5rem);   /* hero name */
+  --fs-h1:      clamp(2rem,   5vw, 3.5rem);
+  --fs-h2:      clamp(1.5rem, 3.5vw, 2.25rem);
+  --fs-h3:      1.25rem;
+  --fs-h4:      1rem;
+  --fs-body-lg: 1.125rem;
+  --fs-body:    1rem;
+  --fs-sm:      0.875rem;
+  --fs-xs:      0.75rem;
+
+  /* Section eyebrow label (mono uppercase) */
+  --fs-eyebrow: 0.75rem;
+  --tracking-eyebrow: 0.08em;
+
+  /* ── Motion ── */
+  --transition:        0.2s ease;
+  --transition-slow:   0.35s ease;
+  --ease-out-quart:    cubic-bezier(0.16, 1, 0.3, 1); /* the "smooth" curve */
+  --ease-spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Shadows / elevation ── */
+  --shadow-card:   0 0 0 1px var(--border), 0 4px 16px rgba(0,0,0,0.30);
+  --shadow-hover:  0 0 0 1px var(--accent), 0 8px 24px rgba(47,129,247,0.18);
+  --shadow-purple: 0 8px 32px rgba(109, 40, 217, 0.18),
+                   0 0 0 1px rgba(139, 92, 246, 0.20),
+                   inset 0 0 40px rgba(139, 92, 246, 0.04);
+  --shadow-glow-blue: 0 12px 32px rgba(59, 130, 246, 0.18),
+                       inset 0 0 20px rgba(59, 130, 246, 0.05);
+}
+
+/* ── Semantic element styles (drop these in any document) ── */
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  background-image:
+    radial-gradient(ellipse 110% 55% at 50% 92%,  var(--glow-purple)    0%, transparent 60%),
+    radial-gradient(ellipse  80% 45% at 50% 88%,  var(--glow-purple-lg) 0%, transparent 50%),
+    radial-gradient(ellipse  55% 40% at -5%  75%, var(--glow-teal)      0%, transparent 55%),
+    radial-gradient(ellipse  55% 40% at 105% 75%, var(--glow-teal-lg)   0%, transparent 55%);
+  background-attachment: fixed;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+}
+
+h1 { font-size: var(--fs-h1); font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; }
+h2 { font-size: var(--fs-h2); font-weight: 600; line-height: 1.20; letter-spacing: -0.01em; }
+h3 { font-size: var(--fs-h3); font-weight: 600; line-height: 1.30; }
+h4 { font-size: var(--fs-h4); font-weight: 600; line-height: 1.35; }
+
+p  { font-size: var(--fs-body); color: var(--text-secondary); line-height: 1.7; }
+
+code, pre, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #a78bfa 0%, #818cf8 35%, #60a5fa 70%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

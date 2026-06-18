@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedPosts } from '../../utils/posts';
+import { slugify } from '../../utils/slugify';
+
+const posts = await getPublishedPosts();
+const counts = new Map<string, number>();
+for (const p of posts) {
+  for (const t of p.data.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+}
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<BaseLayout title="Tags — Afrizzal Blog" description="Browse posts by topic.">
+  <section class="hero-sm">
+    <p class="eyebrow">Browse</p>
+    <h1>Tags</h1>
+  </section>
+
+  <section class="container">
+    {tags.length === 0 && <p class="muted">No tags yet.</p>}
+    <ul class="tag-cloud" role="list">
+      {
+        tags.map(([t, c]) => (
+          <li>
+            <a href={`/tags/${slugify(t)}/`} class="tag">#{t} <span class="muted">{c}</span></a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

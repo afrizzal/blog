@@ -1,0 +1,15 @@
+---
+import { AUTHOR, SOCIAL } from '../consts';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-copy">© {year} {AUTHOR} — written in Trawas.</div>
+    <div class="footer-links">
+      <a href={SOCIAL.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+      <a href={SOCIAL.github} target="_blank" rel="noopener">GitHub</a>
+      <a href="/rss.xml">RSS</a>
+    </div>
+  </div>
+</footer>

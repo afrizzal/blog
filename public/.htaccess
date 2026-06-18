@@ -1,0 +1,14 @@
+Options -Indexes
+
+RewriteEngine On
+
+# Redirect www to non-www (HTTPS)
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# Custom 404 (Astro emits /404.html)
+ErrorDocument 404 /404.html

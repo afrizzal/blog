@@ -1,0 +1,37 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import { readingTime } from '../utils/readingTime';
+import { slugify } from '../utils/slugify';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, tags, category } = post.data;
+const mins = readingTime(post.body);
+---
+
+<article class="card">
+  <div class="card-meta">
+    <a href={`/categories/${slugify(category)}/`} class="cat-badge">{category}</a>
+    <span class="dot">·</span>
+    <FormattedDate date={pubDate} />
+    <span class="dot">·</span>
+    <span>{mins} min read</span>
+  </div>
+  <h2 class="card-title"><a href={`/blog/${post.id}/`}>{title}</a></h2>
+  <p class="card-desc">{description}</p>
+  {
+    tags.length > 0 && (
+      <ul class="tag-row" role="list">
+        {tags.map((t) => (
+          <li>
+            <a href={`/tags/${slugify(t)}/`} class="tag">#{t}</a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</article>

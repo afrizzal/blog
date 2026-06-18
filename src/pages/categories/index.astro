@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedPosts } from '../../utils/posts';
+import { slugify } from '../../utils/slugify';
+
+const posts = await getPublishedPosts();
+const counts = new Map<string, number>();
+for (const p of posts) counts.set(p.data.category, (counts.get(p.data.category) ?? 0) + 1);
+const categories = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<BaseLayout title="Categories — Afrizzal Blog" description="Browse posts by category.">
+  <section class="hero-sm">
+    <p class="eyebrow">Browse</p>
+    <h1>Categories</h1>
+  </section>
+
+  <section class="container">
+    {categories.length === 0 && <p class="muted">No categories yet.</p>}
+    <ul class="cat-list" role="list">
+      {
+        categories.map(([c, n]) => (
+          <li>
+            <a href={`/categories/${slugify(c)}/`} class="cat-link">
+              <span class="cat-name">{c}</span>
+              <span class="muted">{n} post{n === 1 ? '' : 's'}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

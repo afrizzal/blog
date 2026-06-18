@@ -1,0 +1,77 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { readingTime } from '../utils/readingTime';
+import { slugify } from '../utils/slugify';
+import { AUTHOR } from '../consts';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, category } = post.data;
+const mins = readingTime(post.body);
+
+// JSON-LD for rich search results.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description,
+  datePublished: pubDate.toISOString(),
+  ...(updatedDate ? { dateModified: updatedDate.toISOString() } : {}),
+  articleSection: category,
+  keywords: tags.join(', '),
+  author: { '@type': 'Person', name: AUTHOR },
+  mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).toString(),
+};
+---
+
+<BaseLayout title={`${title} — Afrizzal`} description={description} type="article">
+  <article class="container prose-wrap">
+    <a href="/" class="back-link">← All posts</a>
+
+    <header class="post-header">
+      <div class="card-meta">
+        <a href={`/categories/${slugify(category)}/`} class="cat-badge">{category}</a>
+        <span class="dot">·</span>
+        <FormattedDate date={pubDate} />
+        <span class="dot">·</span>
+        <span>{mins} min read</span>
+        {
+          updatedDate && (
+            <>
+              <span class="dot">·</span>
+              <span>Updated <FormattedDate date={updatedDate} /></span>
+            </>
+          )
+        }
+      </div>
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      {
+        tags.length > 0 && (
+          <ul class="tag-row" role="list">
+            {tags.map((t) => (
+              <li>
+                <a href={`/tags/${slugify(t)}/`} class="tag">#{t}</a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+
+    <div class="prose">
+      <slot />
+    </div>
+
+    <footer class="post-foot">
+      <a href="/" class="back-link">← All posts</a>
+    </footer>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+</BaseLayout>
