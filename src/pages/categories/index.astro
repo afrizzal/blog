@@ -10,24 +10,32 @@ const categories = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].loca
 ---
 
 <BaseLayout title="Categories — Afrizzal Blog" description="Browse posts by category.">
-  <section class="hero-sm">
-    <p class="eyebrow">Browse</p>
+  <header class="page-header">
+    <span class="eyebrow">Browse</span>
     <h1>Categories</h1>
-  </section>
+    <p class="intro">
+      Every post belongs to a single category — {categories.length} so far, ordered by how much I end up writing about each.
+    </p>
+  </header>
 
-  <section class="container">
-    {categories.length === 0 && <p class="muted">No categories yet.</p>}
-    <ul class="cat-list" role="list">
-      {
-        categories.map(([c, n]) => (
-          <li>
-            <a href={`/categories/${slugify(c)}/`} class="cat-link">
-              <span class="cat-name">{c}</span>
-              <span class="muted">{n} post{n === 1 ? '' : 's'}</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  {
+    categories.length === 0 ? (
+      <div class="empty">
+        <div class="empty__glyph">∅</div>
+        <h3>No categories yet</h3>
+        <p>Categories appear here once the first post is published.</p>
+      </div>
+    ) : (
+      <div class="cat-list">
+        {categories.map(([c, n]) => (
+          <a class="cat-row" href={`/categories/${slugify(c)}/`}>
+            <div class="cat-row__main">
+              <span class="cat-row__name">{c}</span>
+            </div>
+            <span class="cat-row__count">{n} post{n === 1 ? '' : 's'}</span>
+          </a>
+        ))}
+      </div>
+    )
+  }
 </BaseLayout>

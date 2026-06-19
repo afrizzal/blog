@@ -17,13 +17,16 @@ const { tag, posts } = Astro.props;
 ---
 
 <BaseLayout title={`#${tag} — Afrizzal Blog`} description={`Posts tagged ${tag}.`}>
-  <section class="hero-sm">
-    <p class="eyebrow">Tag</p>
-    <h1>#{tag}</h1>
-    <p class="lead">{posts.length} post{posts.length === 1 ? '' : 's'}</p>
-  </section>
+  <div class="article__nav">
+    <a class="back-link" href="/tags/"><span class="arrow">←</span> All tags</a>
+  </div>
+  <header class="page-header">
+    <span class="eyebrow">Tag</span>
+    <h1><span class="gradient-text">#{tag}</span></h1>
+    <p class="intro">{posts.length} post{posts.length === 1 ? '' : 's'} tagged this topic.</p>
+  </header>
 
-  <section class="container post-list">
+  <section class="post-list" aria-label={`Posts tagged ${tag}`}>
     {posts.map((p) => <PostCard post={p} />)}
   </section>
 </BaseLayout>

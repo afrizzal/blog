@@ -12,15 +12,17 @@ const { prevUrl, nextUrl, currentPage, lastPage } = Astro.props;
   lastPage > 1 && (
     <nav class="pagination" aria-label="Pagination">
       {prevUrl ? (
-        <a href={prevUrl} class="page-btn">← Newer</a>
+        <a href={prevUrl} class="page-btn">← Newer posts</a>
       ) : (
-        <span class="page-btn disabled">← Newer</span>
+        <span class="page-btn" aria-disabled="true">← Newer posts</span>
       )}
-      <span class="page-info">Page {currentPage} of {lastPage}</span>
+      <span class="pagination__status">
+        Page <b>{currentPage}</b> of <b>{lastPage}</b>
+      </span>
       {nextUrl ? (
-        <a href={nextUrl} class="page-btn">Older →</a>
+        <a href={nextUrl} class="page-btn">Older posts →</a>
       ) : (
-        <span class="page-btn disabled">Older →</span>
+        <span class="page-btn" aria-disabled="true">Older posts →</span>
       )}
     </nav>
   )

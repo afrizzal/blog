@@ -8,11 +8,19 @@ import { AUTHOR } from '../consts';
 
 interface Props {
   post: CollectionEntry<'blog'>;
+  newer?: CollectionEntry<'blog'>;
+  older?: CollectionEntry<'blog'>;
 }
 
-const { post } = Astro.props;
+const { post, newer, older } = Astro.props;
 const { title, description, pubDate, updatedDate, tags, category } = post.data;
 const mins = readingTime(post.body);
+
+const updatedLabel = updatedDate?.toLocaleDateString('en-GB', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+});
 
 // JSON-LD for rich search results.
 const jsonLd = {
@@ -29,49 +37,88 @@ const jsonLd = {
 };
 ---
 
-<BaseLayout title={`${title} — Afrizzal`} description={description} type="article">
-  <article class="container prose-wrap">
-    <a href="/" class="back-link">← All posts</a>
+<BaseLayout
+  title={`${title} — Afrizzal`}
+  description={description}
+  type="article"
+  mainClass="shell shell--prose article"
+>
+  <div class="article__nav">
+    <a class="back-link" href="/"><span class="arrow">←</span> All posts</a>
+  </div>
 
-    <header class="post-header">
-      <div class="card-meta">
-        <a href={`/categories/${slugify(category)}/`} class="cat-badge">{category}</a>
-        <span class="dot">·</span>
+  <header class="article-header">
+    <div class="article-header__meta-row">
+      <a href={`/categories/${slugify(category)}/`} class="badge badge--category">{category}</a>
+      <span class="meta">
         <FormattedDate date={pubDate} />
         <span class="dot">·</span>
-        <span>{mins} min read</span>
-        {
-          updatedDate && (
-            <>
-              <span class="dot">·</span>
-              <span>Updated <FormattedDate date={updatedDate} /></span>
-            </>
-          )
-        }
-      </div>
-      <h1>{title}</h1>
-      <p class="lead">{description}</p>
-      {
-        tags.length > 0 && (
-          <ul class="tag-row" role="list">
-            {tags.map((t) => (
-              <li>
-                <a href={`/tags/${slugify(t)}/`} class="tag">#{t}</a>
-              </li>
-            ))}
-          </ul>
-        )
-      }
-    </header>
-
-    <div class="prose">
-      <slot />
+        <span class="read">{mins} min read</span>
+      </span>
+      {updatedDate && (
+        <span class="badge badge--amber" title={`Updated ${updatedLabel}`}>Updated</span>
+      )}
     </div>
+    <h1>{title}</h1>
+    <p class="lead">{description}</p>
+    {
+      tags.length > 0 && (
+        <div class="tag-row">
+          {tags.map((t) => (
+            <a href={`/tags/${slugify(t)}/`} class="tag">{t}</a>
+          ))}
+        </div>
+      )
+    }
+    <hr class="article-header__rule" />
+  </header>
 
-    <footer class="post-foot">
-      <a href="/" class="back-link">← All posts</a>
-    </footer>
+  <article class="prose">
+    <slot />
   </article>
+
+  {
+    newer || older ? (
+      <nav class="pagination" aria-label="Post navigation" style="margin-top:var(--space-12)">
+        {newer ? (
+          <a class="page-btn" href={`/blog/${newer.id}/`}>← {newer.data.title}</a>
+        ) : (
+          <span class="page-btn" aria-disabled="true">← Newer</span>
+        )}
+        {older ? (
+          <a class="page-btn" href={`/blog/${older.id}/`}>{older.data.title} →</a>
+        ) : (
+          <span class="page-btn" aria-disabled="true">Older →</span>
+        )}
+      </nav>
+    ) : (
+      <div class="article__nav" style="margin-top:var(--space-12);margin-bottom:0">
+        <a class="back-link" href="/"><span class="arrow">←</span> All posts</a>
+      </div>
+    )
+  }
 
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
 </BaseLayout>
+
+<script>
+  // Progressive enhancement: copy-to-clipboard on code blocks. The article is
+  // fully readable and the code fully selectable without this.
+  for (const btn of document.querySelectorAll('.code-block__copy')) {
+    btn.addEventListener('click', async () => {
+      const code = btn.closest('.code-block')?.querySelector('pre')?.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = 'copied';
+        btn.classList.add('is-copied');
+        setTimeout(() => {
+          btn.textContent = 'copy';
+          btn.classList.remove('is-copied');
+        }, 1400);
+      } catch {
+        btn.textContent = 'error';
+        setTimeout(() => (btn.textContent = 'copy'), 1400);
+      }
+    });
+  }
+</script>

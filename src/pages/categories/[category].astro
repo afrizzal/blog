@@ -17,13 +17,27 @@ const { category, posts } = Astro.props;
 ---
 
 <BaseLayout title={`${category} — Afrizzal Blog`} description={`Posts in ${category}.`}>
-  <section class="hero-sm">
-    <p class="eyebrow">Category</p>
+  <div class="article__nav">
+    <a class="back-link" href="/categories/"><span class="arrow">←</span> All categories</a>
+  </div>
+  <header class="page-header">
+    <span class="eyebrow">Category</span>
     <h1>{category}</h1>
-    <p class="lead">{posts.length} post{posts.length === 1 ? '' : 's'}</p>
-  </section>
+    <p class="intro">{posts.length} post{posts.length === 1 ? '' : 's'} in this category.</p>
+  </header>
 
-  <section class="container post-list">
-    {posts.map((p) => <PostCard post={p} />)}
-  </section>
+  {
+    posts.length > 0 ? (
+      <section class="post-list" aria-label={`Posts in ${category}`}>
+        {posts.map((p) => <PostCard post={p} />)}
+      </section>
+    ) : (
+      <div class="empty">
+        <div class="empty__glyph">∅</div>
+        <h3>Nothing here yet</h3>
+        <p>No posts in this category right now.</p>
+        <a class="btn btn--ghost" href="/">Browse all posts</a>
+      </div>
+    )
+  }
 </BaseLayout>

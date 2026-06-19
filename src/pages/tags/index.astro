@@ -9,24 +9,33 @@ for (const p of posts) {
   for (const t of p.data.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
 }
 const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+// Map post-count → font-size weight class for the cloud (w1 small … w4 large).
+const weight = (c: number) => (c >= 8 ? 'w4' : c >= 5 ? 'w3' : c >= 3 ? 'w2' : 'w1');
 ---
 
 <BaseLayout title="Tags — Afrizzal Blog" description="Browse posts by topic.">
-  <section class="hero-sm">
-    <p class="eyebrow">Browse</p>
+  <header class="page-header">
+    <span class="eyebrow">Browse</span>
     <h1>Tags</h1>
-  </section>
+    <p class="intro">Cross-cutting threads. Bigger pills, more posts — pick a thread and pull.</p>
+  </header>
 
-  <section class="container">
-    {tags.length === 0 && <p class="muted">No tags yet.</p>}
-    <ul class="tag-cloud" role="list">
-      {
-        tags.map(([t, c]) => (
-          <li>
-            <a href={`/tags/${slugify(t)}/`} class="tag">#{t} <span class="muted">{c}</span></a>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  {
+    tags.length === 0 ? (
+      <div class="empty">
+        <div class="empty__glyph">∅</div>
+        <h3>No tags yet</h3>
+        <p>Tags appear here as posts get published.</p>
+      </div>
+    ) : (
+      <div class="tag-cloud" aria-label="All tags">
+        {tags.map(([t, c]) => (
+          <a href={`/tags/${slugify(t)}/`} class={`tag ${weight(c)}`}>
+            {t} <span class="count">{c}</span>
+          </a>
+        ))}
+      </div>
+    )
+  }
 </BaseLayout>

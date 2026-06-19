@@ -1,16 +1,28 @@
 ---
 import { PORTFOLIO_URL } from '../consts';
+
+// Highlight the active section. trailingSlash is 'always', so every path
+// ends in "/". "Posts" also covers the paginated index (/2/, /3/ …) and
+// individual articles under /blog/.
+const path = Astro.url.pathname;
+const isPosts = path === '/' || /^\/\d+\/$/.test(path) || path.startsWith('/blog');
+const isCategories = path.startsWith('/categories');
+const isTags = path.startsWith('/tags');
 ---
 
 <nav class="nav" aria-label="Primary">
-  <div class="nav-inner">
-    <a href="/" class="logo">afrizzal<span class="logo-sub">/blog</span></a>
-    <ul class="nav-links" role="list">
-      <li><a href="/">Posts</a></li>
-      <li><a href="/categories/">Categories</a></li>
-      <li><a href="/tags/">Tags</a></li>
-      <li><a href="/rss.xml">RSS</a></li>
-    </ul>
-    <a href={PORTFOLIO_URL} class="nav-cta" target="_blank" rel="noopener">Portfolio ↗</a>
+  <div class="nav__inner">
+    {/* Checkbox must precede .nav__burger and .nav__links as a sibling so the
+        CSS-only mobile disclosure (`.nav__toggle:checked ~ …`) works with no JS. */}
+    <input type="checkbox" id="navt" class="nav__toggle sr-only" aria-label="Toggle menu" />
+    <a class="logo" href="/"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span></a>
+    <label for="navt" class="nav__burger"><span></span></label>
+    <div class="nav__links">
+      <a class="nav__link" href="/" aria-current={isPosts ? 'page' : undefined}>Posts</a>
+      <a class="nav__link" href="/categories/" aria-current={isCategories ? 'page' : undefined}>Categories</a>
+      <a class="nav__link" href="/tags/" aria-current={isTags ? 'page' : undefined}>Tags</a>
+      <a class="nav__link" href="/rss.xml">RSS</a>
+      <a class="nav__cta" href={PORTFOLIO_URL} target="_blank" rel="noopener">Portfolio <span class="arrow">↗</span></a>
+    </div>
   </div>
 </nav>

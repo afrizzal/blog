@@ -5,7 +5,7 @@ import Pagination from '../components/Pagination.astro';
 import { getPublishedPosts } from '../utils/posts';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 
-// Paginated home page. Page 1 is "/", page 2 is "/2", etc.
+// Paginated home page. Page 1 is "/", page 2 is "/2/", etc.
 export async function getStaticPaths({ paginate }) {
   const posts = await getPublishedPosts();
   return paginate(posts, { pageSize: 5 });
@@ -15,22 +15,33 @@ const { page } = Astro.props;
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-  <section class="hero-sm">
-    <p class="eyebrow">Blog</p>
-    <h1>Writing<span class="accent">.</span></h1>
-    <p class="lead">
-      Notes on IT leadership, CRM &amp; revenue systems, advertising, and AI automation.
+  <header class="page-header">
+    <span class="eyebrow">Writing</span>
+    <h1>Notes on systems that <span class="gradient-text">move revenue</span></h1>
+    <p class="intro">
+      Practical, no-fluff writing on IT leadership, CRM &amp; revenue plumbing,
+      attribution, and AI automation — from someone who still ships the code.
     </p>
-  </section>
+  </header>
 
-  <section class="container post-list">
-    {page.data.map((post) => <PostCard post={post} />)}
-    {page.data.length === 0 && <p class="muted">No posts yet — check back soon.</p>}
-    <Pagination
-      prevUrl={page.url.prev}
-      nextUrl={page.url.next}
-      currentPage={page.currentPage}
-      lastPage={page.lastPage}
-    />
-  </section>
+  {
+    page.data.length > 0 ? (
+      <section class="post-list" aria-label="All posts">
+        {page.data.map((post) => <PostCard post={post} />)}
+      </section>
+    ) : (
+      <div class="empty">
+        <div class="empty__glyph">∅</div>
+        <h3>Nothing here yet</h3>
+        <p>No posts have shipped yet — new writing lands here as it's published.</p>
+      </div>
+    )
+  }
+
+  <Pagination
+    prevUrl={page.url.prev}
+    nextUrl={page.url.next}
+    currentPage={page.currentPage}
+    lastPage={page.lastPage}
+  />
 </BaseLayout>

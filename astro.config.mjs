@@ -2,6 +2,9 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import rehypeSlug from 'rehype-slug';
+import rehypeProse from './src/plugins/rehype-prose.mjs';
+import { codeBlockTransformer } from './src/plugins/shiki-code-block.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -14,10 +17,17 @@ export default defineConfig({
   trailingSlash: 'always',
   integrations: [mdx(), sitemap()],
   markdown: {
-    // GitHub-flavoured dark theme to match the portfolio palette.
     shikiConfig: {
+      // GitHub-flavoured dark theme to match the portfolio palette.
       theme: 'github-dark',
-      wrap: true,
+      // Long lines scroll horizontally inside the code block instead of
+      // wrapping — matches the design's bordered code-block treatment.
+      wrap: false,
+      // Wrap each block in the .code-block chrome (bar + copy button).
+      transformers: [codeBlockTransformer()],
     },
+    // rehype-slug adds heading ids; rehype-prose appends h2/h3 anchors and
+    // wraps tables in .table-wrap for horizontal scroll.
+    rehypePlugins: [rehypeSlug, rehypeProse],
   },
 });

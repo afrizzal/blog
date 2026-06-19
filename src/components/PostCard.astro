@@ -14,24 +14,33 @@ const mins = readingTime(post.body);
 ---
 
 <article class="card">
-  <div class="card-meta">
-    <a href={`/categories/${slugify(category)}/`} class="cat-badge">{category}</a>
-    <span class="dot">·</span>
-    <FormattedDate date={pubDate} />
-    <span class="dot">·</span>
-    <span>{mins} min read</span>
+  <div class="post-card__top">
+    <a href={`/categories/${slugify(category)}/`} class="badge badge--category">{category}</a>
+    <span class="meta">
+      <FormattedDate date={pubDate} />
+      <span class="dot">·</span>
+      <span class="read">{mins} min read</span>
+    </span>
   </div>
-  <h2 class="card-title"><a href={`/blog/${post.id}/`}>{title}</a></h2>
-  <p class="card-desc">{description}</p>
-  {
-    tags.length > 0 && (
-      <ul class="tag-row" role="list">
-        {tags.map((t) => (
-          <li>
-            <a href={`/tags/${slugify(t)}/`} class="tag">#{t}</a>
-          </li>
-        ))}
-      </ul>
-    )
-  }
+
+  <h2 class="post-card__title">
+    <a href={`/blog/${post.id}/`} class="clamp-2">{title}</a>
+  </h2>
+
+  <p class="post-card__desc">{description}</p>
+
+  <div class="post-card__footer">
+    {
+      tags.length > 0 ? (
+        <div class="tag-row">
+          {tags.map((t) => (
+            <a href={`/tags/${slugify(t)}/`} class="tag">{t}</a>
+          ))}
+        </div>
+      ) : (
+        <span class="meta" style="color:var(--text-muted)">No tags</span>
+      )
+    }
+    <span class="post-card__more">Read post →</span>
+  </div>
 </article>

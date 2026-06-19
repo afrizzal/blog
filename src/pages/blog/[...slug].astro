@@ -4,17 +4,22 @@ import BlogPost from '../../layouts/BlogPost.astro';
 import { getPublishedPosts } from '../../utils/posts';
 
 export async function getStaticPaths() {
-  const posts = await getPublishedPosts();
-  return posts.map((post) => ({
+  const posts = await getPublishedPosts(); // newest-first
+  return posts.map((post, i) => ({
     params: { slug: post.id },
-    props: { post },
+    props: {
+      post,
+      // posts[i - 1] is more recent (newer); posts[i + 1] is older.
+      newer: i > 0 ? posts[i - 1] : undefined,
+      older: i < posts.length - 1 ? posts[i + 1] : undefined,
+    },
   }));
 }
 
-const { post } = Astro.props;
+const { post, newer, older } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<BlogPost post={post}>
+<BlogPost post={post} newer={newer} older={older}>
   <Content />
 </BlogPost>
