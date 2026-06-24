@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Style Tile — afrizzal/blog</title>
+  <link rel="stylesheet" href="styles/design-tokens.css" />
+  <link rel="stylesheet" href="styles/blog.css" />
+  <style>
+    /* Style-tile-only scaffolding (not shipped to the blog) */
+    .tile-section { margin-top: var(--space-20); }
+    .tile-section:first-of-type { margin-top: var(--space-12); }
+    .tile-label {
+      font-family: var(--font-mono); font-size: var(--fs-eyebrow);
+      text-transform: uppercase; letter-spacing: var(--tracking-eyebrow);
+      color: var(--text-muted); margin-bottom: var(--space-5);
+      display: flex; align-items: center; gap: var(--space-3);
+    }
+    .tile-label::after { content: ""; flex: 1; height: 1px; background: var(--border-subtle); }
+    .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-3); }
+    .swatch {
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+      overflow: hidden; background: var(--bg-card);
+    }
+    .swatch__chip { height: 76px; border-bottom: 1px solid var(--border-subtle); }
+    .swatch__meta { padding: var(--space-3); }
+    .swatch__name { font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--text-primary); }
+    .swatch__hex  { font-family: var(--font-mono); font-size: var(--fs-eyebrow); color: var(--text-muted); margin-top: 3px; text-transform: uppercase; }
+    .specimen { border-bottom: 1px dashed var(--border-subtle); padding-block: var(--space-4); display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-6); }
+    .specimen:last-child { border-bottom: 0; }
+    .specimen__note { font-family: var(--font-mono); font-size: var(--fs-eyebrow); color: var(--text-muted); white-space: nowrap; }
+    .demo-grid { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: start; }
+    .state-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+    .state-cell { display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+    .state-cell small { font-family: var(--font-mono); font-size: var(--fs-eyebrow); color: var(--text-muted); }
+    .panel { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); }
+    .legend { font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- NAV -->
+  <nav class="nav" aria-label="Primary">
+    <input type="checkbox" id="navt" class="nav__toggle sr-only" />
+    <div class="nav__inner">
+      <a class="logo" href="home.html"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span></a>
+      <label for="navt" class="nav__burger" aria-label="Menu"><span></span></label>
+      <div class="nav__links">
+        <a class="nav__link" href="home.html">Posts</a>
+        <a class="nav__link" href="categories.html">Categories</a>
+        <a class="nav__link" href="tags.html">Tags</a>
+        <a class="nav__link" href="#" >RSS</a>
+        <a class="nav__cta" href="https://afrizzal.pro">Portfolio <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="shell page">
+    <header class="page-header">
+      <span class="eyebrow">Living Style Guide</span>
+      <h1>The <span class="gradient-text">afrizzal/blog</span> design system</h1>
+      <p class="intro">Every token, component, and state in one place. The single source of truth for the blog's reading experience — evolved from the afrizzal.pro portfolio DNA.</p>
+    </header>
+
+    <!-- COLORS -->
+    <section class="tile-section">
+      <div class="tile-label">01 — Surfaces</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch__chip" style="background:var(--bg-main)"></div><div class="swatch__meta"><div class="swatch__name">--bg-main</div><div class="swatch__hex">#060B17</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--bg-card)"></div><div class="swatch__meta"><div class="swatch__name">--bg-card</div><div class="swatch__hex">#0D1526</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--bg-elevated)"></div><div class="swatch__meta"><div class="swatch__name">--bg-elevated</div><div class="swatch__hex">#111D33</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--bg-subtle)"></div><div class="swatch__meta"><div class="swatch__name">--bg-subtle</div><div class="swatch__hex">#172036</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--bg-inset)"></div><div class="swatch__meta"><div class="swatch__name">--bg-inset</div><div class="swatch__hex">#0A1120</div></div></div>
+      </div>
+      <div class="tile-label" style="margin-top:var(--space-8)">02 — Borders & Text</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch__chip" style="background:var(--border)"></div><div class="swatch__meta"><div class="swatch__name">--border</div><div class="swatch__hex">#243048</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--border-subtle)"></div><div class="swatch__meta"><div class="swatch__name">--border-subtle</div><div class="swatch__hex">#172036</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--text-primary)"></div><div class="swatch__meta"><div class="swatch__name">--text-primary</div><div class="swatch__hex">#E6EDF3</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--text-secondary)"></div><div class="swatch__meta"><div class="swatch__name">--text-secondary</div><div class="swatch__hex">#9AA4B2</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--text-muted)"></div><div class="swatch__meta"><div class="swatch__name">--text-muted</div><div class="swatch__hex">#6E7681</div></div></div>
+      </div>
+      <div class="tile-label" style="margin-top:var(--space-8)">03 — Accents</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch__chip" style="background:var(--accent)"></div><div class="swatch__meta"><div class="swatch__name">--accent</div><div class="swatch__hex">#3B82F6</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--purple)"></div><div class="swatch__meta"><div class="swatch__name">--purple</div><div class="swatch__hex">#A78BFA</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--cyan)"></div><div class="swatch__meta"><div class="swatch__name">--cyan</div><div class="swatch__hex">#22D3EE</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--green)"></div><div class="swatch__meta"><div class="swatch__name">--green</div><div class="swatch__hex">#3FB950</div></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--gradient-brand)"></div><div class="swatch__meta"><div class="swatch__name">--gradient-brand</div><div class="swatch__hex">purple→blue→cyan</div></div></div>
+      </div>
+    </section>
+
+    <!-- TYPE -->
+    <section class="tile-section">
+      <div class="tile-label">04 — Type scale · Inter + JetBrains Mono</div>
+      <div class="panel">
+        <div class="specimen"><span class="eyebrow">Eyebrow label</span><span class="specimen__note">mono · 12 · 0.14em · uppercase</span></div>
+        <div class="specimen"><h1 style="font-size:var(--fs-h1);font-weight:700;letter-spacing:-.02em;line-height:1.1">Heading 1 — the article title</h1><span class="specimen__note">--fs-h1 · 700</span></div>
+        <div class="specimen"><h2 style="font-size:var(--fs-h2);font-weight:700;line-height:1.2">Heading 2 — section</h2><span class="specimen__note">--fs-h2 · 700</span></div>
+        <div class="specimen"><h3 style="font-size:var(--fs-h3);font-weight:600">Heading 3 — subsection</h3><span class="specimen__note">--fs-h3 · 600</span></div>
+        <div class="specimen"><h4 style="font-size:var(--fs-h4);font-weight:600">Heading 4 — minor</h4><span class="specimen__note">--fs-h4 · 600</span></div>
+        <div class="specimen"><p style="font-size:var(--fs-lead);color:var(--text-secondary);max-width:52ch">Lead paragraph — sets up the article with a calm, senior voice and a little more air.</p><span class="specimen__note">--fs-lead</span></div>
+        <div class="specimen"><p style="max-width:60ch;color:#d6dde6">Body copy at the reading size, 1.7 line-height, tuned for long-form technical writing on the dark surface without eye strain.</p><span class="specimen__note">--fs-base · 1.7</span></div>
+        <div class="specimen"><span style="font-family:var(--font-mono);font-size:var(--fs-meta);color:var(--text-secondary)">CRM &amp; REVENUE · 12 Jun 2026 · 4 min read</span><span class="specimen__note">meta · mono</span></div>
+        <div class="specimen"><span class="gradient-text" style="font-size:var(--fs-h3);font-weight:700">Gradient emphasis text</span><span class="specimen__note">--gradient-brand clip</span></div>
+      </div>
+    </section>
+
+    <!-- BADGES & TAGS -->
+    <section class="tile-section">
+      <div class="tile-label">05 — Badges · Tags · Meta</div>
+      <div class="panel stack-6">
+        <div class="state-row">
+          <span class="badge badge--category">CRM &amp; Revenue</span>
+          <span class="badge badge--accent">Infrastructure</span>
+          <span class="badge badge--green">Published</span>
+          <span class="badge badge--amber">Updated</span>
+          <span class="badge badge--red">Draft</span>
+          <span class="badge badge--muted">Archived</span>
+        </div>
+        <div class="tag-row">
+          <a href="#" class="tag">crm</a><a href="#" class="tag">revenue</a>
+          <a href="#" class="tag">postgres</a><a href="#" class="tag">attribution</a><a href="#" class="tag">automation</a>
+        </div>
+        <div class="meta"><span class="badge badge--category">Databases</span><span class="dot">·</span><time>12 Jun 2026</time><span class="dot">·</span><span class="read">6 min read</span></div>
+      </div>
+    </section>
+
+    <!-- BUTTONS & STATES -->
+    <section class="tile-section">
+      <div class="tile-label">06 — Buttons & interactive states</div>
+      <div class="panel">
+        <p class="legend" style="margin-bottom:var(--space-5)">Default / hover / focus-visible (Tab to it) / active / disabled — every interactive element implements all five.</p>
+        <div class="state-row">
+          <div class="state-cell"><a href="#" class="btn btn--primary">Read the post</a><small>primary</small></div>
+          <div class="state-cell"><a href="#" class="btn btn--ghost">View all posts</a><small>ghost</small></div>
+          <div class="state-cell"><a href="#" class="btn btn--quiet">Skip →</a><small>quiet</small></div>
+          <div class="state-cell"><span class="btn btn--primary" aria-disabled="true">Unavailable</span><small>disabled</small></div>
+        </div>
+        <div class="state-row" style="margin-top:var(--space-6)">
+          <div class="state-cell"><a href="#" class="back-link"><span class="arrow">←</span> All posts</a><small>back-link</small></div>
+          <div class="state-cell"><a href="#" class="page-btn">← Newer</a><small>page-btn</small></div>
+          <div class="state-cell"><span class="page-btn" aria-disabled="true">Older →</span><small>page-btn disabled</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POST CARD VARIANTS -->
+    <section class="tile-section">
+      <div class="tile-label">07 — PostCard · canonical (A) + leading-rule variant (B)</div>
+      <div class="demo-grid">
+        <article class="card">
+          <div class="post-card__top"><span class="badge badge--category">CRM &amp; Revenue</span><span class="meta"><time>12 Jun 2026</time><span class="dot">·</span><span class="read">4 min</span></span></div>
+          <h3 class="post-card__title"><a href="article.html">CRM plumbing that moves revenue</a></h3>
+          <p class="post-card__desc">The unglamorous joins, webhooks, and idempotency keys that decide whether your pipeline numbers are real.</p>
+          <div class="post-card__footer"><div class="tag-row"><a href="#" class="tag">crm</a><a href="#" class="tag">revenue</a></div><span class="post-card__more">Read →</span></div>
+        </article>
+        <article class="card card--rule">
+          <div class="post-card__top"><span class="badge badge--category">Infrastructure</span><span class="meta"><time>03 Jun 2026</time><span class="dot">·</span><span class="read">7 min</span></span></div>
+          <h3 class="post-card__title"><a href="article.html">Lean systems on modest hardware</a></h3>
+          <p class="post-card__desc">What a single well-tuned box still buys you in 2026 — and the three places it stops being enough.</p>
+          <div class="post-card__footer"><div class="tag-row"><a href="#" class="tag">ops</a></div><span class="post-card__more">Read →</span></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- PROSE -->
+    <section class="tile-section">
+      <div class="tile-label">08 — Prose · the reading system</div>
+      <div class="panel">
+        <div class="prose" style="max-width:none">
+          <p class="lead-p">A short lead paragraph introduces the piece with slightly larger, secondary-toned type.</p>
+          <h2>A section heading</h2>
+          <p>Body paragraphs use a 1.7 line-height and a softened off-white so long reads stay comfortable. Inline <a href="#">links carry an underline</a> with a tasteful offset, and <code>inline code</code> gets a subtle bordered chip.</p>
+          <h3>A subsection</h3>
+          <ul><li>Custom purple list markers</li><li>Generous spacing between items</li><li>AA contrast throughout</li></ul>
+          <blockquote><p>The best infrastructure decision is the one you can explain to the person who has to run it at 3am.</p><cite>— a calm senior engineer</cite></blockquote>
+          <div class="code-block">
+            <div class="code-block__bar"><div class="code-block__dots"><i></i><i></i><i></i></div><span class="code-block__lang">sql</span></div>
+            <button class="code-block__copy" type="button">copy</button>
+            <pre><code><span class="tok-com">-- find the slowest queries</span>
+<span class="tok-key">SELECT</span> query, mean_exec_time
+<span class="tok-key">FROM</span>   pg_stat_statements
+<span class="tok-key">ORDER BY</span> mean_exec_time <span class="tok-key">DESC</span>
+<span class="tok-key">LIMIT</span>  <span class="tok-num">10</span>;</code></pre>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Surface</th><th>Token</th><th>Use</th></tr></thead>
+            <tbody>
+              <tr><td>Page</td><td>--bg-main</td><td>Background</td></tr>
+              <tr><td>Card</td><td>--bg-card</td><td>PostCard, code</td></tr>
+              <tr><td>Elevated</td><td>--bg-elevated</td><td>Nav, hover</td></tr>
+            </tbody>
+          </table></div>
+          <hr />
+          <figure><div class="img-placeholder"><span>[ diagram — request → queue → worker ]</span></div><figcaption>Figure 1 — the attribution pipeline at a glance.</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- EMPTY STATE -->
+    <section class="tile-section">
+      <div class="tile-label">09 — Empty state · empty category / tag / no results</div>
+      <div class="empty">
+        <div class="empty__glyph">∅</div>
+        <h3>Nothing here yet</h3>
+        <p>No posts in this category right now. New writing lands here as it ships.</p>
+        <a class="btn btn--ghost" href="home.html">Browse all posts</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__copy">© 2026 <span class="mono">Afrizzal P Pratama</span> — IT Manager &amp; fullstack engineer.</p>
+      <div class="footer__links">
+        <a class="footer__link" href="#">LinkedIn</a>
+        <a class="footer__link" href="#">GitHub</a>
+        <a class="footer__link" href="#">RSS</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

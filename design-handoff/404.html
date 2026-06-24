@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>404 — afrizzal/blog</title>
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="styles/design-tokens.css" />
+  <link rel="stylesheet" href="styles/blog.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <input type="checkbox" id="navt" class="nav__toggle sr-only" />
+    <div class="nav__inner">
+      <a class="logo" href="home.html"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span></a>
+      <label for="navt" class="nav__burger" aria-label="Toggle menu"><span></span></label>
+      <div class="nav__links">
+        <a class="nav__link" href="home.html">Posts</a>
+        <a class="nav__link" href="categories.html">Categories</a>
+        <a class="nav__link" href="tags.html">Tags</a>
+        <a class="nav__link" href="#">RSS</a>
+        <a class="nav__cta" href="https://afrizzal.pro">Portfolio <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="shell notfound">
+    <div>
+      <span class="eyebrow" style="justify-content:center">Error</span>
+      <div class="notfound__code gradient-text">404</div>
+      <h1>This route returned nothing</h1>
+      <p>The page you asked for isn't here — it may have been moved, renamed, or never shipped. The writing, however, is still where you left it.</p>
+      <div class="notfound__actions">
+        <a class="btn btn--primary" href="home.html">← Back to all posts</a>
+        <a class="btn btn--ghost" href="categories.html">Browse categories</a>
+      </div>
+      <p class="meta" style="justify-content:center;margin-top:var(--space-8)"><span class="mono">GET /missing</span><span class="dot">·</span><span>404 Not Found</span></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__copy">© 2026 <span class="mono">Afrizzal P Pratama</span> — IT Manager &amp; fullstack engineer.</p>
+      <div class="footer__links">
+        <a class="footer__link" href="#">LinkedIn</a>
+        <a class="footer__link" href="#">GitHub</a>
+        <a class="footer__link" href="#">RSS</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

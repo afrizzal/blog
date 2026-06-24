@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Posts — afrizzal/blog</title>
+  <meta name="description" content="Writing on IT leadership, CRM & revenue systems, attribution, and practical AI automation by Afrizzal P Pratama." />
+  <link rel="stylesheet" href="styles/design-tokens.css" />
+  <link rel="stylesheet" href="styles/blog.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <input type="checkbox" id="navt" class="nav__toggle sr-only" />
+    <div class="nav__inner">
+      <a class="logo" href="home.html"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span></a>
+      <label for="navt" class="nav__burger" aria-label="Toggle menu"><span></span></label>
+      <div class="nav__links">
+        <a class="nav__link" href="home.html" aria-current="page">Posts</a>
+        <a class="nav__link" href="categories.html">Categories</a>
+        <a class="nav__link" href="tags.html">Tags</a>
+        <a class="nav__link" href="#">RSS</a>
+        <a class="nav__cta" href="https://afrizzal.pro">Portfolio <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="shell page">
+    <header class="page-header">
+      <span class="eyebrow">Writing</span>
+      <h1>Notes on systems that <span class="gradient-text">move revenue</span></h1>
+      <p class="intro">Practical, no-fluff writing on IT leadership, CRM &amp; revenue plumbing, attribution, and AI automation — from someone who still ships the code.</p>
+    </header>
+
+    <section class="post-list" aria-label="All posts">
+
+      <!-- Card 1 -->
+      <article class="card">
+        <div class="post-card__top">
+          <a href="category.html" class="badge badge--category">CRM &amp; Revenue</a>
+          <span class="meta"><time datetime="2026-06-12">12 Jun 2026</time><span class="dot">·</span><span class="read">4 min read</span></span>
+        </div>
+        <h2 class="post-card__title"><a href="article.html">CRM plumbing that moves revenue</a></h2>
+        <p class="post-card__desc">The unglamorous joins, webhooks, and idempotency keys that decide whether your pipeline numbers are real — and how to keep finance from quietly rebuilding them in a spreadsheet.</p>
+        <div class="post-card__footer">
+          <div class="tag-row"><a href="tags.html" class="tag">crm</a><a href="tags.html" class="tag">revenue</a></div>
+          <span class="post-card__more">Read post →</span>
+        </div>
+      </article>
+
+      <!-- Card 2: no tags edge case -->
+      <article class="card">
+        <div class="post-card__top">
+          <a href="category.html" class="badge badge--accent">Infrastructure</a>
+          <span class="meta"><time datetime="2026-06-03">03 Jun 2026</time><span class="dot">·</span><span class="read">7 min read</span></span>
+        </div>
+        <h2 class="post-card__title"><a href="article.html">Lean systems on modest hardware</a></h2>
+        <p class="post-card__desc">What a single well-tuned box still buys you in 2026 — and the three specific moments it stops being enough. A budget-first approach to capacity planning.</p>
+        <div class="post-card__footer">
+          <span class="meta" style="color:var(--text-muted)">No tags</span>
+          <span class="post-card__more">Read post →</span>
+        </div>
+      </article>
+
+      <!-- Card 3: very long title edge case (clamps to 2 lines) -->
+      <article class="card">
+        <div class="post-card__top">
+          <a href="category.html" class="badge badge--accent">AI &amp; Automation</a>
+          <span class="meta"><time datetime="2026-05-21">21 May 2026</time><span class="dot">·</span><span class="read">9 min read</span></span>
+        </div>
+        <h2 class="post-card__title"><a href="article.html" class="clamp-2">Practical AI automation: shipping a quietly useful internal assistant without betting the company on a model you don't control</a></h2>
+        <p class="post-card__desc">A pragmatic pattern for wiring an LLM into real workflows — with humans on the critical path, deterministic fallbacks, and a budget you can defend to the CFO.</p>
+        <div class="post-card__footer">
+          <div class="tag-row"><a href="tags.html" class="tag">ai</a><a href="tags.html" class="tag">automation</a><a href="tags.html" class="tag">llm</a></div>
+          <span class="post-card__more">Read post →</span>
+        </div>
+      </article>
+
+      <!-- Card 4 -->
+      <article class="card">
+        <div class="post-card__top">
+          <a href="category.html" class="badge badge--category">Databases</a>
+          <span class="meta"><time datetime="2026-05-09">09 May 2026</time><span class="dot">·</span><span class="read">6 min read</span></span>
+        </div>
+        <h2 class="post-card__title"><a href="article.html">Reading slow query logs</a></h2>
+        <p class="post-card__desc">A field guide to <code>pg_stat_statements</code> and the EXPLAIN output that actually tells you where the time went — without drowning in noise.</p>
+        <div class="post-card__footer">
+          <div class="tag-row"><a href="tags.html" class="tag">postgres</a><a href="tags.html" class="tag">performance</a></div>
+          <span class="post-card__more">Read post →</span>
+        </div>
+      </article>
+
+      <!-- Card 5 -->
+      <article class="card">
+        <div class="post-card__top">
+          <a href="category.html" class="badge badge--accent">Data</a>
+          <span class="meta"><time datetime="2026-04-27">27 Apr 2026</time><span class="dot">·</span><span class="read">5 min read</span></span>
+        </div>
+        <h2 class="post-card__title"><a href="article.html">Spreadsheets to dashboards</a></h2>
+        <p class="post-card__desc">Why the spreadsheet always wins first, and the migration path that keeps the people who trust it on your side while you replace it underneath them.</p>
+        <div class="post-card__footer">
+          <div class="tag-row"><a href="tags.html" class="tag">analytics</a><a href="tags.html" class="tag">reporting</a></div>
+          <span class="post-card__more">Read post →</span>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- PAGINATION -->
+    <nav class="pagination" aria-label="Pagination">
+      <span class="page-btn" aria-disabled="true">← Newer posts</span>
+      <span class="pagination__status">Page <b>1</b> of <b>3</b></span>
+      <a class="page-btn" href="#">Older posts →</a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__copy">© 2026 <span class="mono">Afrizzal P Pratama</span> — IT Manager &amp; fullstack engineer.</p>
+      <div class="footer__links">
+        <a class="footer__link" href="#">LinkedIn</a>
+        <a class="footer__link" href="#">GitHub</a>
+        <a class="footer__link" href="#">RSS</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

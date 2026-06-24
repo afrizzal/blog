@@ -1,0 +1,190 @@
+/* =============================================================================
+   afrizzal/blog — design-tokens.css
+   Single source of truth. Supersedes & extends styles/tokens.css.
+   Evolves the afrizzal.pro portfolio DNA: deep-navy GitHub-Primer dark theme,
+   ambient purple/teal glow, mono accents, crisp bordered cards.
+   Vanilla CSS custom properties only. No build step.
+   ============================================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------------------------------------------------------------------------
+     1. SURFACES  (page → card → elevated → subtle)
+     Tuned for layered depth on the dark theme. All AA-safe behind --text-*.
+     ------------------------------------------------------------------------- */
+  --bg-main:        #060b17;  /* page background                              */
+  --bg-card:        #0d1526;  /* PostCard, code block, default container      */
+  --bg-elevated:    #111d33;  /* nav, hovered card, popovers                  */
+  --bg-subtle:      #172036;  /* inline code, table stripes, chips            */
+  --bg-inset:       #0a1120;  /* wells inside cards (e.g. blockquote body)    */
+
+  /* ---------------------------------------------------------------------------
+     2. BORDERS
+     Cards carry --border-transparent at rest and light up to --border on hover.
+     ------------------------------------------------------------------------- */
+  --border:             #243048;
+  --border-subtle:      #172036;
+  --border-strong:      #2f3d5c;  /* focus-adjacent, active dividers          */
+  --border-transparent: rgba(36, 48, 72, 0);
+
+  /* ---------------------------------------------------------------------------
+     3. TEXT
+     primary AA on every surface; secondary AA on --bg-main/card; muted = meta.
+     ------------------------------------------------------------------------- */
+  --text-primary:    #e6edf3;
+  --text-secondary:  #9aa4b2;  /* nudged lighter than #8b949e for AA on cards */
+  --text-muted:      #6e7681;
+  --text-inverse:    #060b17;  /* text on a solid accent fill                 */
+  --text-on-accent:  #ffffff;
+
+  /* ---------------------------------------------------------------------------
+     4. ACCENTS  (hue family shares chroma; only hue shifts)
+     ------------------------------------------------------------------------- */
+  --accent:          #3b82f6;  /* primary blue — links, buttons              */
+  --accent-hover:    #60a5fa;
+  --accent-active:   #2f6fd6;
+  --purple:          #a78bfa;  /* tags                                        */
+  --purple-hover:    #c4b5fd;
+  --cyan:            #22d3ee;  /* category badges                             */
+  --cyan-hover:      #67e8f9;
+  --green:           #3fb950;  /* success / "published"                       */
+  --red:             #f85149;  /* error / destructive / draft                 */
+  --amber:           #d29922;  /* warning / "updated"                         */
+
+  /* Tinted fills (accent at low alpha for badge/pill backgrounds) */
+  --accent-soft:     rgba(59, 130, 246, 0.12);
+  --accent-ring:     rgba(59, 130, 246, 0.40);
+  --purple-soft:     rgba(167, 139, 250, 0.12);
+  --cyan-soft:       rgba(34, 211, 238, 0.12);
+  --green-soft:      rgba(63, 185, 80, 0.12);
+  --red-soft:        rgba(248, 81, 73, 0.12);
+
+  /* ---------------------------------------------------------------------------
+     5. THE EMPHASIS GRADIENT  (purple → blue → cyan)
+     Signature touch. Used as text-gradient and as hairline accents.
+     ------------------------------------------------------------------------- */
+  --gradient-brand: linear-gradient(100deg, #a78bfa 0%, #3b82f6 50%, #22d3ee 100%);
+  --gradient-hairline: linear-gradient(90deg,
+                        rgba(167,139,250,0) 0%,
+                        rgba(167,139,250,0.6) 20%,
+                        rgba(59,130,246,0.6) 50%,
+                        rgba(34,211,238,0.6) 80%,
+                        rgba(34,211,238,0) 100%);
+
+  /* ---------------------------------------------------------------------------
+     6. AMBIENT GLOW  (fixed radial gradients, anchored bottom of page)
+     Applied to a ::before on <body>; see blog.css.
+     ------------------------------------------------------------------------- */
+  --glow-purple: rgba(124, 58, 237, 0.28);
+  --glow-teal:   rgba(34, 211, 238, 0.10);
+  --glow: radial-gradient(60% 50% at 18% 112%, var(--glow-purple) 0%, transparent 70%),
+          radial-gradient(55% 45% at 88% 108%, var(--glow-teal)   0%, transparent 70%);
+
+  /* ---------------------------------------------------------------------------
+     7. TYPOGRAPHY
+     sans = Inter; mono = JetBrains Mono. Fluid scale via clamp() so headings
+     breathe on desktop and stay legible on mobile.
+     ------------------------------------------------------------------------- */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+
+  /* Type scale (fluid). Base reading size 17px → 18px. */
+  --fs-eyebrow:  0.75rem;                              /* 12px mono labels      */
+  --fs-meta:     0.8125rem;                            /* 13px meta line        */
+  --fs-sm:       0.875rem;                             /* 14px                  */
+  --fs-base:     clamp(1.0625rem, 1.02rem + 0.2vw, 1.125rem);  /* 17→18 body    */
+  --fs-lead:     clamp(1.1875rem, 1.12rem + 0.35vw, 1.375rem); /* lead para     */
+  --fs-h4:       clamp(1.0625rem, 1.0rem + 0.3vw, 1.1875rem);
+  --fs-h3:       clamp(1.25rem, 1.12rem + 0.6vw, 1.5rem);
+  --fs-h2:       clamp(1.5rem, 1.3rem + 1.0vw, 2rem);
+  --fs-h1:       clamp(2rem, 1.55rem + 2.1vw, 3rem);   /* article / page H1     */
+  --fs-display:  clamp(2.5rem, 1.8rem + 3.4vw, 4rem);  /* 404, hero numerals    */
+
+  --lh-tight:   1.12;
+  --lh-snug:    1.28;
+  --lh-body:    1.7;     /* prose paragraphs                                   */
+  --lh-relaxed: 1.75;
+
+  --tracking-eyebrow: 0.14em;   /* mono uppercase eyebrow                      */
+  --tracking-tight:  -0.02em;   /* large headings                             */
+  --tracking-normal:  0;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ---------------------------------------------------------------------------
+     8. SPACING  (4px base scale)
+     ------------------------------------------------------------------------- */
+  --space-1:  0.25rem;   /*  4px */
+  --space-2:  0.5rem;    /*  8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+
+  /* ---------------------------------------------------------------------------
+     9. LAYOUT
+     ------------------------------------------------------------------------- */
+  --measure-prose: 760px;   /* reading column                                 */
+  --measure-wide:  1100px;  /* nav / footer / list shell                      */
+  --gutter:        clamp(1.25rem, 4vw, 2rem);  /* page side padding           */
+  --nav-height:    60px;
+
+  /* ---------------------------------------------------------------------------
+     10. RADII
+     ------------------------------------------------------------------------- */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-pill: 100px;
+
+  /* ---------------------------------------------------------------------------
+     11. SHADOWS  (cards rest flat; lift + accent-tinted glow on hover)
+     ------------------------------------------------------------------------- */
+  --shadow-none:  none;
+  --shadow-sm:    0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-card:  0 8px 24px -12px rgba(0, 0, 0, 0.70);
+  --shadow-hover: 0 12px 32px -14px rgba(0, 0, 0, 0.80),
+                  0 0 0 1px var(--border),
+                  0 8px 40px -20px rgba(59, 130, 246, 0.45);
+  --shadow-pop:   0 16px 48px -16px rgba(0, 0, 0, 0.85);
+
+  /* Focus ring — keyboard visible, WCAG-AA visible, never on mouse */
+  --focus-ring:   0 0 0 2px var(--bg-main), 0 0 0 4px var(--accent-ring);
+
+  /* ---------------------------------------------------------------------------
+     12. MOTION
+     ------------------------------------------------------------------------- */
+  --dur-fast:   0.12s;
+  --dur:        0.2s;
+  --dur-slow:   0.35s;
+  --ease:       ease;
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---------------------------------------------------------------------------
+     13. Z-INDEX
+     ------------------------------------------------------------------------- */
+  --z-glow:  0;
+  --z-base:  1;
+  --z-nav:   100;
+  --z-pop:   200;
+}
+
+/* prefers-reduced-motion: collapse all durations to instant. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0.001ms;
+    --dur:      0.001ms;
+    --dur-slow: 0.001ms;
+  }
+}

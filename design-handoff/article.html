@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM plumbing that moves revenue — afrizzal/blog</title>
+  <meta name="description" content="The unglamorous joins, webhooks, and idempotency keys that decide whether your pipeline numbers are real." />
+  <link rel="stylesheet" href="styles/design-tokens.css" />
+  <link rel="stylesheet" href="styles/blog.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <input type="checkbox" id="navt" class="nav__toggle sr-only" />
+    <div class="nav__inner">
+      <a class="logo" href="home.html"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span></a>
+      <label for="navt" class="nav__burger" aria-label="Toggle menu"><span></span></label>
+      <div class="nav__links">
+        <a class="nav__link" href="home.html">Posts</a>
+        <a class="nav__link" href="categories.html">Categories</a>
+        <a class="nav__link" href="tags.html">Tags</a>
+        <a class="nav__link" href="#">RSS</a>
+        <a class="nav__cta" href="https://afrizzal.pro">Portfolio <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="shell shell--prose article">
+    <div class="article__nav">
+      <a class="back-link" href="home.html"><span class="arrow">←</span> All posts</a>
+    </div>
+
+    <header class="article-header">
+      <div class="article-header__meta-row">
+        <a href="category.html" class="badge badge--category">CRM &amp; Revenue</a>
+        <span class="meta"><time datetime="2026-06-12">12 Jun 2026</time><span class="dot">·</span><span class="read">4 min read</span></span>
+        <span class="badge badge--amber" title="Updated 16 Jun 2026">Updated</span>
+      </div>
+      <h1>CRM plumbing that moves revenue</h1>
+      <p class="lead">The unglamorous joins, webhooks, and idempotency keys that decide whether your pipeline numbers are real — and how to keep finance from quietly rebuilding them in a spreadsheet.</p>
+      <div class="tag-row">
+        <a href="tags.html" class="tag">crm</a>
+        <a href="tags.html" class="tag">revenue</a>
+      </div>
+      <hr class="article-header__rule" />
+    </header>
+
+    <article class="prose">
+      <p class="lead-p">Every CRM eventually grows a shadow: a spreadsheet someone in finance maintains because they don't trust the dashboard. That spreadsheet is a bug report. It tells you exactly where your plumbing leaks.</p>
+
+      <p>The pipeline number on the executive dashboard travels through more systems than anyone admits. A form fill hits a landing page, fires a webhook, lands in a queue, gets de-duplicated against an existing contact, attributed to a campaign, and only <em>then</em> becomes a row that rolls up into "revenue influenced." Each hop is a chance to double-count, drop, or silently mis-attribute. The dashboard looks confident anyway.</p>
+
+      <h2 id="the-three-leaks">The three leaks <a href="#the-three-leaks" class="anchor" aria-label="Link to this section">#</a></h2>
+      <p>In practice, almost every "the numbers are wrong" escalation traces back to one of three places. Knowing them turns a week of forensic SQL into an afternoon.</p>
+      <ul>
+        <li><strong>Non-idempotent writes</strong> — a retried webhook creates a second deal.</li>
+        <li><strong>Attribution races</strong> — the contact is created before the campaign touch is recorded, so first-touch is blank.</li>
+        <li><strong>Soft-delete blindness</strong> — merged duplicates still sum into reports.</li>
+      </ul>
+
+      <h3 id="idempotency">Idempotency is a revenue feature <a href="#idempotency" class="anchor" aria-label="Link to this section">#</a></h3>
+      <p>Treat every inbound event as something that <em>will</em> arrive twice. The fix is boring and total: a unique key on the event source, an upsert instead of an insert, and a dead-simple ledger of what you've already processed. Here's the shape of it against Postgres:</p>
+
+      <div class="code-block">
+        <div class="code-block__bar">
+          <div class="code-block__dots"><i></i><i></i><i></i></div>
+          <span class="code-block__lang">sql</span>
+        </div>
+        <button class="code-block__copy" type="button" aria-label="Copy code">copy</button>
+        <pre><code><span class="tok-com">-- one row per external event, ever</span>
+<span class="tok-key">INSERT INTO</span> crm_events (event_id, contact_email, campaign, payload)
+<span class="tok-key">VALUES</span> (<span class="tok-var">$1</span>, <span class="tok-var">$2</span>, <span class="tok-var">$3</span>, <span class="tok-var">$4</span>)
+<span class="tok-key">ON CONFLICT</span> (event_id) <span class="tok-key">DO NOTHING</span>
+<span class="tok-key">RETURNING</span> id;
+<span class="tok-com">-- empty result = duplicate, stop here. Idempotent by construction.</span></code></pre>
+      </div>
+
+      <p>The <code>ON CONFLICT (event_id) DO NOTHING</code> line is the entire safety net. Pair it with a unique index and a retried delivery becomes a no-op instead of a phantom deal.</p>
+
+      <h3 id="wider-than-the-column">A query wider than the column <a href="#wider-than-the-column" class="anchor" aria-label="Link to this section">#</a></h3>
+      <p>Sometimes the honest example just doesn't fit the reading width. That's fine — the code block scrolls horizontally on its own rather than forcing the page to, and the rest of the prose stays put at 760px:</p>
+
+      <div class="code-block">
+        <div class="code-block__bar">
+          <div class="code-block__dots"><i></i><i></i><i></i></div>
+          <span class="code-block__lang">sql</span>
+        </div>
+        <button class="code-block__copy" type="button" aria-label="Copy code">copy</button>
+        <pre><code><span class="tok-key">SELECT</span> c.email, c.first_campaign, d.amount, d.closed_at, a.touch_count, a.first_touch_channel, a.last_touch_channel
+<span class="tok-key">FROM</span>   contacts c
+<span class="tok-key">JOIN</span>   deals d         <span class="tok-key">ON</span> d.contact_id = c.id <span class="tok-key">AND</span> d.stage = <span class="tok-str">'closed_won'</span> <span class="tok-key">AND</span> d.deleted_at <span class="tok-key">IS NULL</span>
+<span class="tok-key">LEFT JOIN</span> attribution a <span class="tok-key">ON</span> a.contact_id = c.id
+<span class="tok-key">WHERE</span>  d.closed_at >= date_trunc(<span class="tok-str">'quarter'</span>, now()) <span class="tok-key">ORDER BY</span> d.amount <span class="tok-key">DESC</span>;</code></pre>
+      </div>
+
+      <h2 id="trust-the-spreadsheet">Trust the spreadsheet first <a href="#trust-the-spreadsheet" class="anchor" aria-label="Link to this section">#</a></h2>
+      <p>When finance maintains a parallel number, don't fight it — <a href="#">reconcile against it</a>. Treat their spreadsheet as the acceptance test for your pipeline. The day your dashboard matches their sheet to the dollar for a full quarter, you've earned the right to retire it.</p>
+
+      <blockquote>
+        <p>The best revenue dashboard is the one finance stops checking against their own spreadsheet.</p>
+        <cite>— what "done" actually looks like</cite>
+      </blockquote>
+
+      <h3 id="a-reconciliation-checklist">A reconciliation checklist <a href="#a-reconciliation-checklist" class="anchor" aria-label="Link to this section">#</a></h3>
+      <p>Run this monthly. It's ordered by how often each one is the actual culprit:</p>
+      <ol>
+        <li>De-duplicate contacts on a normalized email before anything sums.</li>
+        <li>Exclude soft-deleted and merged records from every rollup.</li>
+        <li>Confirm attribution touches exist before the deal's <code>created_at</code>.</li>
+        <li>Reconcile currency at the rate on the close date, not today's.</li>
+      </ol>
+
+      <h2 id="what-to-watch">What to watch <a href="#what-to-watch" class="anchor" aria-label="Link to this section">#</a></h2>
+      <p>A small set of guardrail metrics catches most regressions before finance does. Keep them on a board nobody has to remember to open:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Healthy</th><th>Means trouble</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Duplicate contact rate</td><td>&lt; 0.5%</td><td>Idempotency gap upstream</td></tr>
+            <tr><td>Unattributed closed-won</td><td>&lt; 3%</td><td>Attribution race condition</td></tr>
+            <tr><td>Dashboard vs. finance delta</td><td>&lt; $0</td><td>Soft-delete leaking into sums</td></tr>
+            <tr><td>Webhook retry → new deal</td><td>0</td><td>Non-idempotent write path</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <figure>
+        <div class="img-placeholder"><span>[ diagram — form → queue → dedupe → attribution → rollup ]</span></div>
+        <figcaption>Figure 1 — the full path a lead takes before it becomes a number on a slide.</figcaption>
+      </figure>
+
+      <hr />
+
+      <p>None of this is clever. It's plumbing: unique keys, upserts, a reconciliation you actually run. But it's the difference between a revenue number you can defend in a board meeting and one you quietly apologize for. Boring, dependable plumbing is the whole job.</p>
+
+      <p class="meta" style="margin-top:var(--space-8)">Filed under <a href="category.html" class="tag" style="margin-left:6px">crm</a> <a href="tags.html" class="tag">revenue</a></p>
+    </article>
+
+    <nav class="pagination" aria-label="Post navigation" style="max-width:var(--measure-prose)">
+      <a class="page-btn" href="article.html">← Lean systems on modest hardware</a>
+      <a class="page-btn" href="article.html">Reading slow query logs →</a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__copy">© 2026 <span class="mono">Afrizzal P Pratama</span> — IT Manager &amp; fullstack engineer.</p>
+      <div class="footer__links">
+        <a class="footer__link" href="#">LinkedIn</a>
+        <a class="footer__link" href="#">GitHub</a>
+        <a class="footer__link" href="#">RSS</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

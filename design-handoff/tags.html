@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tags — afrizzal/blog</title>
+  <meta name="description" content="Browse posts by tag." />
+  <link rel="stylesheet" href="styles/design-tokens.css" />
+  <link rel="stylesheet" href="styles/blog.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <input type="checkbox" id="navt" class="nav__toggle sr-only" />
+    <div class="nav__inner">
+      <a class="logo" href="home.html"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span></a>
+      <label for="navt" class="nav__burger" aria-label="Toggle menu"><span></span></label>
+      <div class="nav__links">
+        <a class="nav__link" href="home.html">Posts</a>
+        <a class="nav__link" href="categories.html">Categories</a>
+        <a class="nav__link" href="tags.html" aria-current="page">Tags</a>
+        <a class="nav__link" href="#">RSS</a>
+        <a class="nav__cta" href="https://afrizzal.pro">Portfolio <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="shell page">
+    <header class="page-header">
+      <span class="eyebrow">Browse</span>
+      <h1>Tags</h1>
+      <p class="intro">Cross-cutting threads. Bigger pills, more posts — pick a thread and pull.</p>
+    </header>
+
+    <div class="tag-cloud" aria-label="All tags">
+      <a href="tag.html" class="tag w4">revenue <span class="count">9</span></a>
+      <a href="tag.html" class="tag w3">crm <span class="count">8</span></a>
+      <a href="tag.html" class="tag w3">postgres <span class="count">7</span></a>
+      <a href="tag.html" class="tag w2">automation <span class="count">5</span></a>
+      <a href="tag.html" class="tag w2">attribution <span class="count">5</span></a>
+      <a href="tag.html" class="tag w2">performance <span class="count">4</span></a>
+      <a href="tag.html" class="tag w1">ai <span class="count">3</span></a>
+      <a href="tag.html" class="tag w1">reporting <span class="count">3</span></a>
+      <a href="tag.html" class="tag w1">analytics <span class="count">2</span></a>
+      <a href="tag.html" class="tag w1">llm <span class="count">2</span></a>
+      <a href="tag.html" class="tag w1">ops <span class="count">2</span></a>
+      <a href="tag.html" class="tag w1">queues <span class="count">1</span></a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__copy">© 2026 <span class="mono">Afrizzal P Pratama</span> — IT Manager &amp; fullstack engineer.</p>
+      <div class="footer__links">
+        <a class="footer__link" href="#">LinkedIn</a>
+        <a class="footer__link" href="#">GitHub</a>
+        <a class="footer__link" href="#">RSS</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

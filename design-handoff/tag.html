@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>#revenue — afrizzal/blog</title>
+  <meta name="description" content="Posts tagged revenue." />
+  <link rel="stylesheet" href="styles/design-tokens.css" />
+  <link rel="stylesheet" href="styles/blog.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <input type="checkbox" id="navt" class="nav__toggle sr-only" />
+    <div class="nav__inner">
+      <a class="logo" href="home.html"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span></a>
+      <label for="navt" class="nav__burger" aria-label="Toggle menu"><span></span></label>
+      <div class="nav__links">
+        <a class="nav__link" href="home.html">Posts</a>
+        <a class="nav__link" href="categories.html">Categories</a>
+        <a class="nav__link" href="tags.html" aria-current="page">Tags</a>
+        <a class="nav__link" href="#">RSS</a>
+        <a class="nav__cta" href="https://afrizzal.pro">Portfolio <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="shell page">
+    <div class="article__nav" style="margin-bottom:var(--space-6)">
+      <a class="back-link" href="tags.html"><span class="arrow">←</span> All tags</a>
+    </div>
+    <header class="page-header">
+      <span class="eyebrow">Tag</span>
+      <h1><span class="gradient-text">#revenue</span></h1>
+      <p class="intro">Everything touching the number on the slide. <span style="color:var(--text-muted)">9 posts.</span></p>
+    </header>
+
+    <section class="post-list" aria-label="Posts tagged revenue">
+      <article class="card">
+        <div class="post-card__top">
+          <a href="category.html" class="badge badge--category">CRM &amp; Revenue</a>
+          <span class="meta"><time datetime="2026-06-12">12 Jun 2026</time><span class="dot">·</span><span class="read">4 min read</span></span>
+        </div>
+        <h2 class="post-card__title"><a href="article.html">CRM plumbing that moves revenue</a></h2>
+        <p class="post-card__desc">The unglamorous joins, webhooks, and idempotency keys that decide whether your pipeline numbers are real.</p>
+        <div class="post-card__footer">
+          <div class="tag-row"><a href="tag.html" class="tag">crm</a><a href="tag.html" class="tag">revenue</a></div>
+          <span class="post-card__more">Read post →</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="post-card__top">
+          <a href="category.html" class="badge badge--category">CRM &amp; Revenue</a>
+          <span class="meta"><time datetime="2026-03-18">18 Mar 2026</time><span class="dot">·</span><span class="read">6 min read</span></span>
+        </div>
+        <h2 class="post-card__title"><a href="article.html">Attribution without the lies</a></h2>
+        <p class="post-card__desc">First-touch, last-touch, and the honest middle ground that survives contact with a real sales team.</p>
+        <div class="post-card__footer">
+          <div class="tag-row"><a href="tag.html" class="tag">attribution</a><a href="tag.html" class="tag">revenue</a></div>
+          <span class="post-card__more">Read post →</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="post-card__top">
+          <a href="category.html" class="badge badge--accent">Data</a>
+          <span class="meta"><time datetime="2026-04-27">27 Apr 2026</time><span class="dot">·</span><span class="read">5 min read</span></span>
+        </div>
+        <h2 class="post-card__title"><a href="article.html">Spreadsheets to dashboards</a></h2>
+        <p class="post-card__desc">Why the spreadsheet always wins first, and the migration path that keeps the people who trust it on your side.</p>
+        <div class="post-card__footer">
+          <div class="tag-row"><a href="tag.html" class="tag">analytics</a><a href="tag.html" class="tag">revenue</a></div>
+          <span class="post-card__more">Read post →</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- EDGE CASE: empty tag / category renders this in place of .post-list -->
+    <!--
+    <div class="empty">
+      <div class="empty__glyph">∅</div>
+      <h3>Nothing here yet</h3>
+      <p>No posts carry this tag right now. New writing lands here as it ships.</p>
+      <a class="btn btn--ghost" href="home.html">Browse all posts</a>
+    </div>
+    -->
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__copy">© 2026 <span class="mono">Afrizzal P Pratama</span> — IT Manager &amp; fullstack engineer.</p>
+      <div class="footer__links">
+        <a class="footer__link" href="#">LinkedIn</a>
+        <a class="footer__link" href="#">GitHub</a>
+        <a class="footer__link" href="#">RSS</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

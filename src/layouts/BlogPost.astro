@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { readingTime } from '../utils/readingTime';
@@ -13,7 +14,7 @@ interface Props {
 }
 
 const { post, newer, older } = Astro.props;
-const { title, description, pubDate, updatedDate, tags, category } = post.data;
+const { title, description, pubDate, updatedDate, tags, category, heroImage } = post.data;
 const mins = readingTime(post.body);
 
 const updatedLabel = updatedDate?.toLocaleDateString('en-GB', {
@@ -72,6 +73,14 @@ const jsonLd = {
     }
     <hr class="article-header__rule" />
   </header>
+
+  {
+    heroImage && (
+      <figure class="article-hero">
+        <Image src={heroImage} alt={title} width={1200} loading="eager" />
+      </figure>
+    )
+  }
 
   <article class="prose">
     <slot />

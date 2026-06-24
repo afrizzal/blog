@@ -5,10 +5,9 @@
    ============================================================================= */
 
 /* ---------------------------------------------------------------------------
-   FONTS — loaded via <link rel="stylesheet"> in BaseHead.astro
-   (Inter + JetBrains Mono, both with display=swap). No @import here so this
-   sheet never blocks on a font request.
+   FONTS  (self-host in production; CDN here so files render when opened raw)
    ------------------------------------------------------------------------- */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 
 /* ---------------------------------------------------------------------------
    RESET
@@ -583,7 +582,6 @@ a.tag:active { transform: translateY(1px); }
 }
 .code-block:hover .code-block__copy { opacity: 1; }
 .code-block__copy:hover { color: var(--text-primary); border-color: var(--border); }
-.code-block__copy.is-copied { color: var(--green); border-color: rgba(63, 185, 80, 0.4); }
 
 /* Shiki-style token colours (sample tokens; production = Shiki output) */
 .tok-key { color: #ff7b72; }
@@ -626,13 +624,6 @@ a.tag:active { transform: translateY(1px); }
     var(--bg-card);
 }
 .img-placeholder span { font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--text-muted); letter-spacing: 0.05em; }
-
-/* Article hero image — rendered full-width between the header and the body */
-.article-hero { margin: 0 0 var(--space-10); }
-.article-hero img {
-  width: 100%; height: auto;
-  border-radius: var(--radius-lg); border: 1px solid var(--border);
-}
 
 /* Horizontal rule */
 .prose hr { margin-block: var(--space-12); height: 1px; border: 0; background: var(--gradient-hairline); }
@@ -756,32 +747,3 @@ a.tag:active { transform: translateY(1px); }
 }
 .stack-6 > * + * { margin-top: var(--space-6); }
 .stack-8 > * + * { margin-top: var(--space-8); }
-
-/* ===========================================================================
-   PROSE FALLBACKS  — raw Markdown output (core pass)
-   The optional rehype step later wraps code in .code-block (header bar + copy)
-   and tables in .table-wrap. Until then, frame Shiki's bare <pre> directly so
-   code blocks still get the bordered, horizontally-scrolling treatment.
-   Scoped to direct children of .prose so it won't double-apply once a
-   .code-block wrapper exists.
-   =========================================================================== */
-.prose > pre {
-  margin-block: var(--space-6);
-  padding: var(--space-5);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow-x: auto;
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  line-height: 1.7;
-  box-shadow: var(--shadow-card);
-  -webkit-overflow-scrolling: touch;
-}
-.prose > pre code {
-  font-family: inherit;
-  white-space: pre;
-  background: none;
-  border: 0;
-  padding: 0;
-  font-size: inherit;
-}

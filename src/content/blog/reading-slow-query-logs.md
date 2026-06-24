@@ -1,7 +1,7 @@
 ---
 title: 'Read the slow query log first'
 description: 'Before reaching for a bigger server, read the slow query log. It is the cheapest performance win you will ever get.'
-category: 'Engineering'
+category: 'Systems & Performance'
 pubDate: 2026-06-05
 tags: ['database', 'performance']
 draft: false
