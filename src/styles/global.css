@@ -289,6 +289,28 @@ a:focus-visible { border-radius: var(--radius-sm); }
 }
 .footer__copy { color: var(--text-muted); font-size: var(--fs-sm); }
 .footer__copy .mono { font-family: var(--font-mono); color: var(--text-secondary); }
+/* Beating heart — same treatment as the portfolio footer. */
+.footer__copy .heart {
+  display: inline-block;
+  width: 13px; height: 13px;
+  vertical-align: -2px;
+  margin: 0 1px;
+}
+.footer__copy .heart svg {
+  width: 100%; height: 100%;
+  display: block;
+  fill: #f472b6;
+  transform-origin: 50% 50%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .footer__copy .heart svg { animation: heartbeat 1.8s ease-in-out infinite; }
+}
+@keyframes heartbeat {
+  0%, 32%, 100% { transform: scale(1); }
+  8%  { transform: scale(1.28); }
+  16% { transform: scale(1.04); }
+  24% { transform: scale(1.22); }
+}
 .footer__links { display: flex; gap: var(--space-1); }
 .footer__link {
   color: var(--text-secondary);
