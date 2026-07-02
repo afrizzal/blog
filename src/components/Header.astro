@@ -15,7 +15,7 @@ const isTags = path.startsWith('/tags');
     {/* Checkbox must precede .nav__burger and .nav__links as a sibling so the
         CSS-only mobile disclosure (`.nav__toggle:checked ~ …`) works with no JS. */}
     <input type="checkbox" id="navt" class="nav__toggle sr-only" aria-label="Toggle menu" />
-    <a class="logo" href="/"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span></a>
+    <a class="logo" href="/"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span><span class="caret" aria-hidden="true"></span></a>
     <label for="navt" class="nav__burger"><span></span></label>
     <div class="nav__links">
       <a class="nav__link" href="/" aria-current={isPosts ? 'page' : undefined}>Posts</a>

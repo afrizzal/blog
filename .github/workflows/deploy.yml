@@ -1,14 +1,18 @@
-name: Build & deploy to cPanel
+name: "[Fallback] Build & deploy to cPanel via FTP"
+
+# ⚠️ Deployment utama sekarang: Hostinger Git deployment (build di sisi
+# Hostinger, auto-deploy tiap push ke master — dikonfigurasi di hPanel, bukan
+# di repo ini). Workflow ini disimpan HANYA sebagai fallback manual: jalankan
+# lewat tombol "Run workflow" di tab Actions bila jalur Hostinger bermasalah.
+# Setelah jalur Hostinger terbukti stabil, file ini + secrets FTP_* boleh
+# dihapus sepenuhnya.
 
 on:
-  push:
-    branches: [master]
-  workflow_dispatch: {} # tombol "Run workflow" manual di tab Actions
+  workflow_dispatch: {} # manual saja — tidak lagi terpicu oleh push
 
 permissions:
   contents: read
 
-# Jangan jalankan dua deploy bersamaan; batalkan yang lama bila ada push baru.
 concurrency:
   group: deploy-blog
   cancel-in-progress: true

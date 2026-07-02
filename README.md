@@ -47,60 +47,48 @@ npm install
    npm run dev      # http://localhost:4321
    ```
 
-## Build & deploy
+## Build lokal
 
 ```
 npm run build      # menghasilkan folder dist/
-npm run preview    # cek hasil build lokal sebelum upload
+npm run preview    # cek hasil build lokal
 ```
 
-Lalu upload **isi folder `dist/`** (bukan foldernya) ke document root subdomain
-`blog.afrizzal.pro` lewat cPanel File Manager / FTP.
+## Deploy otomatis (push → live) — Hostinger Git deployment
 
-### Setup subdomain di cPanel (sekali saja)
+Repo: <https://github.com/afrizzal/blog>. Deployment ditangani **langsung oleh
+Hostinger** (fitur *Web Apps / Node.js Apps* di hPanel): setiap **push ke
+`master`**, Hostinger menarik repo, menjalankan `npm install` + `npm run build`
+di servernya, lalu menyajikan isi `dist/`. Tidak ada kredensial FTP di GitHub.
 
-1. cPanel → **Subdomains** → buat `blog` di domain `afrizzal.pro`.
-2. Arahkan **Document Root** ke folder upload (mis. `/home/USER/blog.afrizzal.pro`).
-3. Aktifkan SSL (AutoSSL / Let's Encrypt) untuk subdomain itu.
-4. Upload isi `dist/` ke document root tersebut.
+### Setup di hPanel (sekali saja)
 
-`.htaccess` (force HTTPS + www→non-www + halaman 404) sudah ikut ter-build dari
-`public/.htaccess`.
+1. hPanel → **Websites → Add Website → Node.js Apps** → **Import Git Repository**.
+2. Authorize **Hostinger GitHub App** → pilih repo `afrizzal/blog` + branch `master`.
+3. Hostinger mendeteksi Astro otomatis. Pastikan: Build command `npm run build`,
+   Output directory `dist`, Node.js `22.x` (dipilih otomatis dari field
+   `engines` di `package.json`).
+4. Deploy, lalu **Connect domain** → arahkan `blog.afrizzal.pro` ke app ini
+   (SSL terpasang otomatis).
 
-## Deploy otomatis (push → live)
-
-Repo: <https://github.com/afrizzal/blog>. Setiap **push ke `master`**, GitHub Actions
-(`.github/workflows/deploy.yml`) otomatis: build Astro (Node 22) → upload `dist/` via **FTPS**
-ke document root `blog.afrizzal.pro`. Jadi alur menulis cukup:
+Setelah itu alur menulis cukup:
 
 ```
 ./new-post.ps1 "Judul"
 git add -A && git commit -m "post: judul"
-git push            # <- langsung ter-deploy
+git push            # <- Hostinger build & deploy otomatis
 ```
 
-### Secret yang harus diisi sekali (repo → Settings → Secrets and variables → Actions)
+GitHub Actions (`.github/workflows/ci.yml`) tetap mem-build tiap push sebagai
+**pemeriksa** (build rusak ketahuan di GitHub dulu). Workflow FTP lama
+(`deploy.yml`) disimpan sebagai **fallback manual** (tab Actions → Run
+workflow) dan boleh dihapus — beserta secrets `FTP_*` — begitu jalur Hostinger
+terbukti stabil.
 
-| Secret | Isi |
-|---|---|
-| `FTP_HOST` | host FTP (mis. `ftp.afrizzal.pro` atau IP server) |
-| `FTP_USERNAME` | user FTP (cPanel → FTP Accounts) |
-| `FTP_PASSWORD` | password FTP |
-| `FTP_SERVER_DIR` | Document Root subdomain, **diakhiri `/`** (mis. `/blog.afrizzal.pro/`) |
-
-Atau lewat CLI (nilai tidak tersimpan di chat):
-
-```
-gh secret set FTP_HOST
-gh secret set FTP_USERNAME
-gh secret set FTP_PASSWORD
-gh secret set FTP_SERVER_DIR
-```
-
-Run pertama tanpa secret akan gagal di langkah FTP (build tetap sukses) — itu wajar.
-Setelah secret terisi: `git push` lagi, atau buka tab **Actions → Run workflow**.
-
-> Jika host tidak mendukung FTPS, ubah `protocol: ftps` → `ftp` di `deploy.yml`.
+> Catatan: pada jalur Web Apps, situs disajikan lewat proxy Hostinger — file
+> `public/.htaccess` tidak lagi dipakai (redirect HTTPS/www dan SSL ditangani
+> platform). File itu tetap disertakan agar `dist/` tetap kompatibel dengan
+> hosting Apache/LiteSpeed biasa (fallback FTP).
 
 ## Yang sudah termasuk
 

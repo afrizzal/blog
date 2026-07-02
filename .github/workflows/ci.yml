@@ -1,0 +1,43 @@
+name: CI — build check
+
+# Deployment dilakukan oleh Hostinger (Git deployment: pull + npm install +
+# npm run build di server Hostinger pada tiap push ke master). Workflow ini
+# TIDAK men-deploy apa pun — ia hanya memastikan `npm run build` hijau lebih
+# dulu, supaya build yang rusak ketahuan di GitHub sebelum Hostinger
+# mencoba membangunnya.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Astro type & content check
+        run: npx astro check
+
+      - name: Build
+        run: npm run build

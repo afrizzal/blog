@@ -54,7 +54,9 @@
 
   /* Tinted fills (accent at low alpha for badge/pill backgrounds) */
   --accent-soft:     rgba(59, 130, 246, 0.12);
-  --accent-ring:     rgba(59, 130, 246, 0.40);
+  /* Focus ring layer — near-opaque so the ring itself clears the 3:1
+     non-text-contrast requirement on every surface (WCAG 1.4.11). */
+  --accent-ring:     rgba(96, 165, 250, 0.90);
   --purple-soft:     rgba(167, 139, 250, 0.12);
   --cyan-soft:       rgba(34, 211, 238, 0.12);
   --green-soft:      rgba(63, 185, 80, 0.12);
@@ -78,8 +80,10 @@
      ------------------------------------------------------------------------- */
   --glow-purple: rgba(124, 58, 237, 0.28);
   --glow-teal:   rgba(34, 211, 238, 0.10);
+  --glow-top:    rgba(59, 130, 246, 0.07);  /* faint aura behind the nav/hero  */
   --glow: radial-gradient(60% 50% at 18% 112%, var(--glow-purple) 0%, transparent 70%),
-          radial-gradient(55% 45% at 88% 108%, var(--glow-teal)   0%, transparent 70%);
+          radial-gradient(55% 45% at 88% 108%, var(--glow-teal)   0%, transparent 70%),
+          radial-gradient(50% 34% at 50% -6%,  var(--glow-top)    0%, transparent 70%);
 
   /* ---------------------------------------------------------------------------
      7. TYPOGRAPHY
@@ -168,8 +172,12 @@
   --dur-fast:   0.12s;
   --dur:        0.2s;
   --dur-slow:   0.35s;
+  --dur-reveal: 0.55s;   /* entrance rise on page load                        */
   --ease:       ease;
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Card spotlight — pointer-tracking radial highlight (see global.css) */
+  --spotlight: rgba(96, 165, 250, 0.09);
 
   /* ---------------------------------------------------------------------------
      13. Z-INDEX
@@ -183,8 +191,9 @@
 /* prefers-reduced-motion: collapse all durations to instant. */
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --dur-fast: 0.001ms;
-    --dur:      0.001ms;
-    --dur-slow: 0.001ms;
+    --dur-fast:   0.001ms;
+    --dur:        0.001ms;
+    --dur-slow:   0.001ms;
+    --dur-reveal: 0.001ms;
   }
 }

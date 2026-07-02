@@ -1,21 +1,35 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { readingTime } from '../utils/readingTime';
 import { slugify } from '../utils/slugify';
-import { AUTHOR } from '../consts';
+import { AUTHOR, PORTFOLIO_URL } from '../consts';
 
 interface Props {
   post: CollectionEntry<'blog'>;
   newer?: CollectionEntry<'blog'>;
   older?: CollectionEntry<'blog'>;
+  headings?: MarkdownHeading[];
 }
 
-const { post, newer, older } = Astro.props;
+const { post, newer, older, headings = [] } = Astro.props;
 const { title, description, pubDate, updatedDate, tags, category, heroImage } = post.data;
 const mins = readingTime(post.body);
+
+// h2/h3 only, matching the anchor treatment. The TOC renders when there is
+// enough structure to be worth navigating. Astro extracts headings after the
+// rehype pass, so each text carries the appended "#" anchor glyph — strip it.
+const toc = headings
+  .filter((h) => h.depth === 2 || h.depth === 3)
+  .map((h) => ({ ...h, text: h.text.replace(/#\s*$/, '').trim() }));
+const showToc = toc.length >= 3;
+
+// Pairs the H1 with this post's card title for the cross-document
+// view-transition morph (see PostCard.astro + global.css).
+const vtName = `vt-title-${post.id.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
 
 const updatedLabel = updatedDate?.toLocaleDateString('en-GB', {
   day: '2-digit',
@@ -44,6 +58,8 @@ const jsonLd = {
   type="article"
   mainClass="shell shell--prose article"
 >
+  <div class="read-progress" aria-hidden="true"></div>
+
   <div class="article__nav">
     <a class="back-link" href="/"><span class="arrow">←</span> All posts</a>
   </div>
@@ -60,7 +76,7 @@ const jsonLd = {
         <span class="badge badge--amber" title={`Updated ${updatedLabel}`}>Updated</span>
       )}
     </div>
-    <h1>{title}</h1>
+    <h1 style={`view-transition-name: ${vtName}`}>{title}</h1>
     <p class="lead">{description}</p>
     {
       tags.length > 0 && (
@@ -82,22 +98,74 @@ const jsonLd = {
     )
   }
 
+  {
+    showToc && (
+      <>
+        <aside class="toc" aria-label="Table of contents">
+          <span class="eyebrow">On this page</span>
+          <nav class="toc__list">
+            {toc.map((h) => (
+              <a
+                class:list={['toc__link', { 'toc__link--h3': h.depth === 3 }]}
+                href={`#${h.slug}`}
+              >
+                {h.text}
+              </a>
+            ))}
+          </nav>
+        </aside>
+        <details class="toc-inline">
+          <summary>On this page</summary>
+          <nav class="toc__list">
+            {toc.map((h) => (
+              <a
+                class:list={['toc__link', { 'toc__link--h3': h.depth === 3 }]}
+                href={`#${h.slug}`}
+              >
+                {h.text}
+              </a>
+            ))}
+          </nav>
+        </details>
+      </>
+    )
+  }
+
   <article class="prose">
     <slot />
   </article>
 
+  <div class="prose-end" aria-hidden="true">∎</div>
+
+  <footer class="author-card">
+    <div class="author-card__id">
+      <span class="author-card__avatar" aria-hidden="true">AP</span>
+      <div>
+        <div class="author-card__name">{AUTHOR}</div>
+        <p class="author-card__role">IT Manager &amp; fullstack engineer — writing about the systems behind revenue.</p>
+      </div>
+    </div>
+    <a class="btn btn--ghost" href={PORTFOLIO_URL} target="_blank" rel="noopener">Portfolio ↗</a>
+  </footer>
+
   {
     newer || older ? (
-      <nav class="pagination" aria-label="Post navigation" style="margin-top:var(--space-12)">
+      <nav class="post-nav" aria-label="Post navigation">
         {newer ? (
-          <a class="page-btn" href={`/blog/${newer.id}/`}>← {newer.data.title}</a>
+          <a class="post-nav__link" href={`/blog/${newer.id}/`}>
+            <span class="post-nav__label">← Newer</span>
+            <span class="post-nav__title clamp-2">{newer.data.title}</span>
+          </a>
         ) : (
-          <span class="page-btn" aria-disabled="true">← Newer</span>
+          <div class="post-nav__spacer" aria-hidden="true" />
         )}
         {older ? (
-          <a class="page-btn" href={`/blog/${older.id}/`}>{older.data.title} →</a>
+          <a class="post-nav__link post-nav__link--next" href={`/blog/${older.id}/`}>
+            <span class="post-nav__label">Older →</span>
+            <span class="post-nav__title clamp-2">{older.data.title}</span>
+          </a>
         ) : (
-          <span class="page-btn" aria-disabled="true">Older →</span>
+          <div class="post-nav__spacer" aria-hidden="true" />
         )}
       </nav>
     ) : (
@@ -114,6 +182,8 @@ const jsonLd = {
   // Progressive enhancement: copy-to-clipboard on code blocks. The article is
   // fully readable and the code fully selectable without this.
   for (const btn of document.querySelectorAll('.code-block__copy')) {
+    // Announce the copied/error label change to screen readers.
+    btn.setAttribute('aria-live', 'polite');
     btn.addEventListener('click', async () => {
       const code = btn.closest('.code-block')?.querySelector('pre')?.textContent ?? '';
       try {
@@ -129,5 +199,40 @@ const jsonLd = {
         setTimeout(() => (btn.textContent = 'copy'), 1400);
       }
     });
+  }
+
+  // Progressive enhancement: scroll-spy for the desktop TOC rail. Highlights
+  // the section whose heading last crossed the upper reading band.
+  const tocRail = document.querySelector('.toc');
+  if (tocRail) {
+    const links = new Map(
+      [...tocRail.querySelectorAll<HTMLAnchorElement>('.toc__link')].map((a) => [
+        decodeURIComponent(a.hash.slice(1)),
+        a,
+      ]),
+    );
+    const headings = [...links.keys()]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    let activeLink: HTMLAnchorElement | undefined;
+    const setActive = (id: string) => {
+      const next = links.get(id);
+      if (!next || next === activeLink) return;
+      activeLink?.classList.remove('is-active');
+      next.classList.add('is-active');
+      activeLink = next;
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        }
+      },
+      // Active band: from just under the nav to 65% down the viewport.
+      { rootMargin: '-70px 0px -65% 0px' },
+    );
+    for (const h of headings) io.observe(h);
   }
 </script>

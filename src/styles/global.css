@@ -34,6 +34,7 @@ body {
 
 img, svg, video { display: block; max-width: 100%; height: auto; }
 a { color: var(--accent); text-decoration: none; }
+:root { accent-color: var(--accent); }
 ul, ol { padding: 0; list-style: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 
@@ -50,7 +51,22 @@ body::before {
   pointer-events: none;
   background: var(--glow);
 }
+/* Film-grain overlay — kills gradient banding in the glow and adds tactile
+   depth. SVG turbulence at ~3% opacity; effectively free to composite. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-glow);
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 body > * { position: relative; z-index: var(--z-base); }
+
+/* Scrollbars — match the surface system instead of shipping browser chrome. */
+html { scrollbar-color: var(--border-strong) var(--bg-main); }
+pre  { scrollbar-color: var(--border) transparent; scrollbar-width: thin; }
 
 /* Skip link — accessibility */
 .skip-link {
@@ -106,11 +122,23 @@ a:focus-visible { border-radius: var(--radius-sm); }
 
 .gradient-text {
   background: var(--gradient-brand);
+  background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   /* fallback for non-supporting engines */
   -webkit-text-fill-color: transparent;
+}
+/* The page-header's gradient moment breathes — a slow pan, never a strobe. */
+@media (prefers-reduced-motion: no-preference) {
+  .page-header .gradient-text,
+  .notfound .gradient-text {
+    animation: gradient-pan 7s ease-in-out infinite alternate;
+  }
+}
+@keyframes gradient-pan {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
 }
 
 .page-header { margin-bottom: var(--space-12); }
@@ -144,6 +172,23 @@ a:focus-visible { border-radius: var(--radius-sm); }
   backdrop-filter: blur(14px) saturate(140%);
   border-bottom: 1px solid var(--border-subtle);
 }
+/* Once the page scrolls, the nav firms up: stronger border + deeper tint.
+   Pure CSS scroll-driven animation — browsers without support keep the
+   resting style, which is already correct. */
+@supports (animation-timeline: scroll()) {
+  .nav {
+    animation: nav-solidify linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 120px;
+  }
+  @keyframes nav-solidify {
+    to {
+      border-bottom-color: var(--border);
+      background: color-mix(in srgb, var(--bg-main) 88%, transparent);
+      box-shadow: 0 12px 32px -20px rgba(0, 0, 0, 0.8);
+    }
+  }
+}
 .nav__inner {
   height: 100%;
   max-width: var(--measure-wide);
@@ -165,6 +210,19 @@ a:focus-visible { border-radius: var(--radius-sm); }
 .logo .path   { color: var(--text-secondary); }
 .logo:hover .path { color: var(--text-primary); }
 .logo:hover .prompt { color: var(--cyan-hover); }
+/* Terminal caret after the logo — blinks like a waiting prompt. */
+.logo .caret {
+  display: inline-block;
+  width: 7px; height: 1.05em;
+  margin-left: 3px;
+  vertical-align: text-bottom;
+  background: var(--cyan);
+  opacity: 0.85;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .logo .caret { animation: caret-blink 1.25s steps(2, jump-none) infinite; }
+}
+@keyframes caret-blink { 50% { opacity: 0; } }
 
 .nav__links {
   display: flex;
@@ -203,8 +261,12 @@ a:focus-visible { border-radius: var(--radius-sm); }
 .nav__cta:active { transform: translateY(1px); }
 .nav__cta .arrow { color: var(--cyan); }
 
-/* Nav toggle — hidden on desktop, CSS-only disclosure on mobile */
-.nav__toggle { display: none; }
+/* Nav toggle — the checkbox stays in the tab order on mobile (visually
+   hidden by .sr-only) so keyboard users can open the menu; it leaves the
+   tab order entirely on desktop where the burger doesn't exist. */
+@media (min-width: 641px) {
+  .nav__toggle { display: none; }
+}
 .nav__burger { display: none; }
 
 /* ===========================================================================
@@ -287,6 +349,7 @@ a.tag:active { transform: translateY(1px); }
   gap: var(--space-2);
   font-family: var(--font-mono);
   font-size: var(--fs-meta);
+  font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
 .meta .dot { opacity: 0.5; }
@@ -337,11 +400,17 @@ a.tag:active { transform: translateY(1px); }
 /* ===========================================================================
    POST CARD  (canonical) — transparent border lights up on hover
    =========================================================================== */
-.post-list { display: flex; flex-direction: column; gap: var(--space-5); }
+.post-list { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
+/* ≥880px: cards pair up in two columns; a featured card spans the full row. */
+@media (min-width: 880px) {
+  .post-list { grid-template-columns: 1fr 1fr; }
+  .post-list > .card--featured { grid-column: 1 / -1; }
+}
 
 .card {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   background: var(--bg-card);
   border: 1px solid var(--border-transparent);
   border-radius: var(--radius-lg);
@@ -386,12 +455,16 @@ a.tag:active { transform: translateY(1px); }
   text-wrap: pretty;
 }
 .post-card__footer {
-  margin-top: var(--space-5);
+  /* auto pushes the footer to the card's base when grid rows stretch cards */
+  margin-top: auto;
+  padding-top: var(--space-5);
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--space-4); flex-wrap: wrap;
 }
-/* tag pills inside a card sit above the stretched link */
+/* tag pills + the category badge sit above the stretched link so they stay
+   independently clickable */
 .post-card__footer .tag-row { position: relative; z-index: var(--z-base); }
+.post-card__top .badge { position: relative; z-index: var(--z-base); }
 .post-card__more {
   font-family: var(--font-mono);
   font-size: var(--fs-meta);
@@ -478,10 +551,29 @@ a.tag:active { transform: translateY(1px); }
 .prose > * + * { margin-top: var(--space-6); }
 .prose p { color: #d6dde6; text-wrap: pretty; }
 
+/* Opening paragraph reads as a lead — eases the drop into long-form.
+   Keeps the body ink (the header's .lead is the secondary-toned one). */
+.prose > p:first-child {
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+}
+
+/* External links carry a quiet departure mark. The `/ ""` alt keeps the
+   arrow out of the accessible name; engines without the syntax drop the
+   declaration and simply show no arrow. */
+.prose a[href^="http"]::after {
+  content: "\2197" / "";
+  font-size: 0.7em;
+  margin-left: 2px;
+  color: var(--text-muted);
+  vertical-align: super;
+}
+
 .prose h2, .prose h3, .prose h4 {
   color: var(--text-primary);
   line-height: var(--lh-snug);
   letter-spacing: -0.015em;
+  text-wrap: balance;
   scroll-margin-top: calc(var(--nav-height) + var(--space-6));
 }
 .prose h2 { font-size: var(--fs-h2); font-weight: var(--weight-bold); margin-top: var(--space-12); }
@@ -489,13 +581,14 @@ a.tag:active { transform: translateY(1px); }
 .prose h4 { font-size: var(--fs-h4); font-weight: var(--weight-semibold); margin-top: var(--space-8); }
 .prose h2 + *, .prose h3 + *, .prose h4 + * { margin-top: var(--space-4); }
 
-/* Anchored headings — link icon appears on hover */
+/* Anchored headings — link icon appears on hover or keyboard focus */
 .prose h2 .anchor, .prose h3 .anchor {
   font-family: var(--font-mono); color: var(--text-muted);
   margin-left: var(--space-2); opacity: 0; text-decoration: none;
   transition: opacity var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.prose h2:hover .anchor, .prose h3:hover .anchor { opacity: 1; }
+.prose h2:hover .anchor, .prose h3:hover .anchor,
+.prose .anchor:focus-visible { opacity: 1; }
 .prose .anchor:hover { color: var(--accent-hover); }
 
 /* Prose links — underline offset, AA */
@@ -509,10 +602,17 @@ a.tag:active { transform: translateY(1px); }
 }
 .prose a:hover { color: #93c5fd; text-decoration-color: #93c5fd; }
 
-/* Lists */
+/* Lists — the ▹ bullet is a ::before, not ::marker, because the global reset
+   sets list-style:none and Safari doesn't support `content` on ::marker. */
 .prose ul, .prose ol { padding-left: var(--space-6); color: #d6dde6; }
 .prose ul li, .prose ol li { margin-top: var(--space-2); padding-left: var(--space-2); }
-.prose ul li::marker { color: var(--purple); content: "▹ "; }
+.prose ul li { position: relative; }
+.prose ul li::before {
+  content: "▹";
+  color: var(--purple);
+  position: absolute;
+  left: calc(-1 * var(--space-4));
+}
 .prose ol { list-style: decimal; }
 .prose ol li::marker { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-sm); }
 .prose li > ul, .prose li > ol { margin-top: var(--space-2); }
@@ -581,19 +681,14 @@ a.tag:active { transform: translateY(1px); }
   border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
   padding: 4px 8px; opacity: 0; transition: opacity var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.code-block:hover .code-block__copy { opacity: 1; }
+.code-block:hover .code-block__copy,
+.code-block__copy:focus-visible { opacity: 1; }
+/* Touch devices have no hover — keep the button visible at rest. */
+@media (hover: none) {
+  .code-block__copy { opacity: 1; }
+}
 .code-block__copy:hover { color: var(--text-primary); border-color: var(--border); }
 .code-block__copy.is-copied { color: var(--green); border-color: rgba(63, 185, 80, 0.4); }
-
-/* Shiki-style token colours (sample tokens; production = Shiki output) */
-.tok-key { color: #ff7b72; }
-.tok-fn  { color: #d2a8ff; }
-.tok-str { color: #a5d6ff; }
-.tok-num { color: #79c0ff; }
-.tok-com { color: #6e7681; font-style: italic; }
-.tok-var { color: #ffa657; }
-.tok-punc{ color: #8b949e; }
-.tok-type{ color: #7ee787; }
 
 /* Tables */
 .prose .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
@@ -712,7 +807,11 @@ a.tag:active { transform: translateY(1px); }
     border-bottom: 1px solid var(--border);
     padding: var(--space-3) var(--gutter) var(--space-5);
     transform: translateY(-130%);
-    transition: transform var(--dur-slow) var(--ease-smooth);
+    /* visibility keeps the closed panel's links out of the tab order;
+       the 0s-delayed flip lets the slide-out finish before hiding. */
+    visibility: hidden;
+    transition: transform var(--dur-slow) var(--ease-smooth),
+                visibility 0s linear var(--dur-slow);
     box-shadow: var(--shadow-pop);
   }
   .nav__link { padding: var(--space-3); border-radius: var(--radius-md); }
@@ -731,7 +830,11 @@ a.tag:active { transform: translateY(1px); }
   .nav__burger span::before { position: absolute; transform: translateY(-5px); }
   .nav__burger span::after  { position: absolute; transform: translateY(5px); }
   /* CSS-only disclosure */
-  .nav__toggle:checked ~ .nav__links { transform: translateY(0); }
+  .nav__toggle:checked ~ .nav__links {
+    transform: translateY(0);
+    visibility: visible;
+    transition: transform var(--dur-slow) var(--ease-smooth), visibility 0s;
+  }
   .nav__toggle:checked ~ .nav__burger span { background: transparent; }
   .nav__toggle:checked ~ .nav__burger span::before { transform: rotate(45deg); }
   .nav__toggle:checked ~ .nav__burger span::after  { transform: rotate(-45deg); }
@@ -741,6 +844,7 @@ a.tag:active { transform: translateY(1px); }
 @media (max-width: 560px) {
   .page { padding-top: calc(var(--nav-height) + var(--space-10)); }
   .card { padding: var(--space-5); }
+  .prose p { hyphens: auto; -webkit-hyphens: auto; }
   .post-card__footer { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
   .pagination { flex-direction: column-reverse; align-items: stretch; gap: var(--space-3); }
   .pagination .page-btn { justify-content: center; }
@@ -785,3 +889,373 @@ a.tag:active { transform: translateY(1px); }
   padding: 0;
   font-size: inherit;
 }
+
+/* ===========================================================================
+   VIEW TRANSITIONS — native cross-document (MPA), zero JS router.
+   Chrome/Edge/Safari 18.4+ get a soft cross-fade between pages plus a shared
+   morph on post titles (card → article H1, wired via inline
+   view-transition-name). Other browsers navigate normally.
+   =========================================================================== */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 0.22s; }
+
+/* Shared-element morphs (post titles) get the expressive curve. */
+::view-transition-group(*) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Belt and braces: opt out of the transition entirely where the nested
+     at-rule is honoured, and freeze the snapshot animations everywhere else. */
+  @view-transition { navigation: none; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
+
+/* ===========================================================================
+   ENTRANCE REVEALS — content rises 14px on first paint. Pure CSS, `backwards`
+   fill so delayed items stay hidden until their turn. When a navigation was
+   handled by a view transition, BaseLayout tags <html class="vt"> at
+   `pagereveal` and these are skipped — the cross-fade IS the entrance.
+   =========================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.vt) :is(
+    .page-header,
+    .post-list > *,
+    .cat-list > *,
+    .tag-cloud,
+    .empty,
+    .pagination,
+    .article__nav,
+    .article-header,
+    .article-hero,
+    .prose,
+    .post-nav,
+    .author-card
+  ) {
+    animation: rise var(--dur-reveal) var(--ease-smooth) backwards;
+  }
+  /* Stagger: list pages */
+  html:not(.vt) .post-list > :nth-child(1) { animation-delay: 70ms; }
+  html:not(.vt) .post-list > :nth-child(2) { animation-delay: 130ms; }
+  html:not(.vt) .post-list > :nth-child(3) { animation-delay: 190ms; }
+  html:not(.vt) .post-list > :nth-child(4) { animation-delay: 250ms; }
+  html:not(.vt) .post-list > :nth-child(5) { animation-delay: 310ms; }
+  html:not(.vt) .post-list > :nth-child(n + 6) { animation-delay: 370ms; }
+  html:not(.vt) .cat-list > :nth-child(1) { animation-delay: 70ms; }
+  html:not(.vt) .cat-list > :nth-child(2) { animation-delay: 120ms; }
+  html:not(.vt) .cat-list > :nth-child(3) { animation-delay: 170ms; }
+  html:not(.vt) .cat-list > :nth-child(n + 4) { animation-delay: 220ms; }
+  html:not(.vt) :is(.tag-cloud, .empty, .pagination) { animation-delay: 140ms; }
+  /* Stagger: article page */
+  html:not(.vt) .article-header { animation-delay: 50ms; }
+  html:not(.vt) .article-hero   { animation-delay: 110ms; }
+  html:not(.vt) .prose          { animation-delay: 150ms; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
+/* ===========================================================================
+   CARD SPOTLIGHT — a pointer-tracking radial highlight (progressive
+   enhancement; BaseLayout sets --mx/--my per card). Desktop pointers only.
+   =========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease);
+    background: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 50%),
+      var(--spotlight),
+      transparent 65%
+    );
+  }
+  .card:hover::after { opacity: 1; }
+}
+
+/* ===========================================================================
+   FEATURED CARD — the latest post gets the hero treatment on page 1:
+   always-on gradient leading rule, larger title, pulsing "Latest" flag.
+   =========================================================================== */
+.card--featured { padding: var(--space-8); padding-left: calc(var(--space-8) + 3px); }
+.card--featured::before {
+  content: "";
+  position: absolute;
+  left: 0; top: var(--space-6); bottom: var(--space-6);
+  width: 3px;
+  border-radius: 3px;
+  background: var(--gradient-brand);
+}
+.card--featured .post-card__title { font-size: var(--fs-h2); letter-spacing: var(--tracking-tight); }
+.card--featured .post-card__desc  { max-width: 70ch; }
+
+.post-card__flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.post-card__flag::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .post-card__flag::before { animation: flag-pulse 2.6s var(--ease) infinite; }
+}
+@keyframes flag-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(63, 185, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+}
+@media (max-width: 560px) {
+  .card--featured { padding: var(--space-5); padding-left: calc(var(--space-5) + 3px); }
+  .card--featured .post-card__title { font-size: var(--fs-h3); }
+}
+
+/* Homepage stats line — mono facts under the intro. */
+.page-header .stats {
+  margin-top: var(--space-5);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  /* secondary — 13px informational text must clear 4.5:1 (WCAG AA) */
+  color: var(--text-secondary);
+}
+.page-header .stats a { color: var(--text-secondary); transition: color var(--dur) var(--ease); }
+.page-header .stats a:hover { color: var(--text-primary); }
+.page-header .stats .dot { opacity: 0.5; }
+
+/* ===========================================================================
+   READING PROGRESS — 2.5px gradient bar above the nav on article pages.
+   CSS scroll-driven animation; browsers without support simply never show it.
+   =========================================================================== */
+.read-progress {
+  position: fixed;
+  /* Sits just under the nav: the bar lives inside <main>, whose `body > *`
+     stacking context (z-index 1) can never paint above the z-100 nav — so
+     don't compete, dock beneath its border instead. */
+  inset: var(--nav-height) 0 auto 0;
+  height: 2.5px;
+  z-index: var(--z-nav);
+  background: var(--gradient-brand);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+  display: none;
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .read-progress {
+      display: block;
+      animation: read-grow linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+@keyframes read-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ===========================================================================
+   TABLE OF CONTENTS
+   ≥1340px: fixed rail in the right gutter beside the prose column (760px
+   column + 40px gap + 230px rail fits with room to spare), with scroll-spy
+   highlight (JS in BlogPost). Below that: a <details> disclosure above the
+   article. Both render from the same headings list.
+   =========================================================================== */
+.toc { display: none; }
+@media (min-width: 1340px) {
+  .toc {
+    display: block;
+    position: fixed;
+    top: calc(var(--nav-height) + var(--space-16));
+    left: calc(50% + (var(--measure-prose) / 2) + var(--space-10));
+    width: 230px;
+    max-height: calc(100vh - var(--nav-height) - var(--space-24));
+    overflow-y: auto;
+    /* inline padding keeps focus rings inside the scrollport unclipped */
+    padding-inline: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+}
+.toc__list { margin-top: var(--space-4); border-left: 1px solid var(--border-subtle); }
+.toc__link {
+  display: block;
+  padding: 5px 0 5px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  /* secondary, not muted — 14px body text must clear 4.5:1 (WCAG AA) */
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.toc__link:hover { color: var(--text-primary); }
+.toc__link.is-active { color: var(--accent-hover); border-left-color: var(--accent); }
+.toc__link--h3 { padding-left: 28px; font-size: var(--fs-meta); }
+
+.toc-inline {
+  margin-bottom: var(--space-8);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+.toc-inline summary {
+  padding: var(--space-4) var(--space-5);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.toc-inline summary::-webkit-details-marker { display: none; }
+.toc-inline summary::before {
+  content: "▸";
+  color: var(--cyan);
+  transition: transform var(--dur) var(--ease-smooth);
+}
+.toc-inline[open] summary::before { transform: rotate(90deg); }
+.toc-inline .toc__list { margin: 0 var(--space-5) var(--space-4); }
+@media (min-width: 1340px) { .toc-inline { display: none; } }
+
+/* ===========================================================================
+   POST NAV — newer/older as a pair of mini-cards at the end of an article.
+   =========================================================================== */
+.post-nav {
+  margin-top: var(--space-16);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+.post-nav__link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease),
+              transform var(--dur) var(--ease-smooth);
+}
+.post-nav__link:hover {
+  border-color: var(--border);
+  background: var(--bg-elevated);
+  transform: translateY(-2px);
+}
+.post-nav__link--next { text-align: right; align-items: flex-end; }
+.post-nav__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  /* secondary — 12px functional link text must clear 4.5:1 (WCAG AA) */
+  color: var(--text-secondary);
+}
+.post-nav__link:hover .post-nav__label { color: var(--cyan); }
+.post-nav__title {
+  font-size: var(--fs-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--lh-snug);
+}
+.post-nav__spacer { border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg); opacity: 0.5; }
+@media (max-width: 560px) {
+  .post-nav { grid-template-columns: 1fr; }
+  .post-nav__spacer { display: none; }
+}
+
+/* ===========================================================================
+   AUTHOR CARD — editorial sign-off at the end of every article.
+   =========================================================================== */
+.prose-end {
+  margin-top: var(--space-10);
+  text-align: center;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  letter-spacing: 0.4em;
+}
+.author-card {
+  margin-top: var(--space-10);
+  padding: var(--space-6);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+.author-card__id { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.author-card__avatar {
+  flex: none;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--bg-subtle), var(--bg-subtle)) padding-box,
+    var(--gradient-brand) border-box;
+}
+.author-card__name { font-weight: var(--weight-semibold); color: var(--text-primary); }
+.author-card__role { margin-top: 2px; font-size: var(--fs-sm); color: var(--text-secondary); }
+
+/* ===========================================================================
+   PROSE EXTRAS — footnotes, kbd, mark
+   =========================================================================== */
+.prose kbd {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.45em;
+}
+.prose mark {
+  background: rgba(210, 153, 34, 0.22);
+  color: var(--text-primary);
+  border-radius: 3px;
+  padding: 0 0.25em;
+}
+.prose sup a { text-decoration: none; font-family: var(--font-mono); }
+.prose .footnotes {
+  margin-top: var(--space-12);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.prose .footnotes p { color: var(--text-secondary); }

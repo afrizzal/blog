@@ -5,7 +5,10 @@ const year = new Date().getFullYear();
 
 <footer class="footer">
   <div class="footer__inner">
-    <p class="footer__copy">© {year} <span class="mono">{AUTHOR}</span> — IT Manager &amp; fullstack engineer.</p>
+    <p class="footer__copy">
+      © {year} <span class="mono">{AUTHOR}</span> — IT Manager &amp; fullstack engineer.
+      <span class="mono" style="color:var(--text-muted)">git push → live</span>
+    </p>
     <div class="footer__links">
       <a class="footer__link" href={SOCIAL.linkedin} target="_blank" rel="noopener">LinkedIn</a>
       <a class="footer__link" href={SOCIAL.github} target="_blank" rel="noopener">GitHub</a>

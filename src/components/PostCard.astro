@@ -6,15 +6,23 @@ import { slugify } from '../utils/slugify';
 
 interface Props {
   post: CollectionEntry<'blog'>;
+  /** Hero treatment for the newest post on page 1: full-width card with an
+      always-on gradient rule, larger title and a pulsing "Latest" flag. */
+  featured?: boolean;
 }
 
-const { post } = Astro.props;
+const { post, featured = false } = Astro.props;
 const { title, description, pubDate, tags, category } = post.data;
 const mins = readingTime(post.body);
+
+// Pairs this card's title with the article H1 for the native cross-document
+// view-transition morph (see global.css). Must be a valid CSS custom-ident.
+const vtName = `vt-title-${post.id.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
 ---
 
-<article class="card">
+<article class:list={['card', { 'card--featured': featured }]}>
   <div class="post-card__top">
+    {featured && <span class="post-card__flag">Latest</span>}
     <a href={`/categories/${slugify(category)}/`} class="badge badge--category">{category}</a>
     <span class="meta">
       <FormattedDate date={pubDate} />
@@ -23,7 +31,7 @@ const mins = readingTime(post.body);
     </span>
   </div>
 
-  <h2 class="post-card__title">
+  <h2 class="post-card__title" style={`view-transition-name: ${vtName}`}>
     <a href={`/blog/${post.id}/`} class="clamp-2">{title}</a>
   </h2>
 

@@ -27,6 +27,16 @@ const { title, description, image, type, mainClass = 'shell page' } = Astro.prop
 <html lang="en">
   <head>
     <BaseHead title={title} description={description} image={image} type={type} />
+    <script is:inline>
+      // When a cross-document view transition drives this navigation, tag
+      // <html class="vt"> before first paint so the CSS entrance reveals are
+      // skipped — the transition's cross-fade is the entrance. Fires ahead of
+      // the new-state snapshot, so the tag also keeps delayed (opacity-0)
+      // elements out of the captured frame.
+      addEventListener('pagereveal', (e) => {
+        if (e.viewTransition) document.documentElement.classList.add('vt');
+      });
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -35,5 +45,19 @@ const { title, description, image, type, mainClass = 'shell page' } = Astro.prop
       <slot />
     </main>
     <Footer />
+    <script>
+      // Card spotlight: track the pointer per card via --mx/--my custom
+      // properties (consumed by .card::after in global.css). Desktop-pointer
+      // progressive enhancement; cards render identically without it.
+      if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        for (const card of document.querySelectorAll<HTMLElement>('.card')) {
+          card.addEventListener('pointermove', (e) => {
+            const r = card.getBoundingClientRect();
+            card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+            card.style.setProperty('--my', `${e.clientY - r.top}px`);
+          });
+        }
+      }
+    </script>
   </body>
 </html>

@@ -1,4 +1,6 @@
 ---
+import type { GetStaticPaths, Page } from 'astro';
+import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import Pagination from '../components/Pagination.astro';
@@ -6,12 +8,21 @@ import { getPublishedPosts } from '../utils/posts';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 
 // Paginated home page. Page 1 is "/", page 2 is "/2/", etc.
-export async function getStaticPaths({ paginate }) {
+export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getPublishedPosts();
   return paginate(posts, { pageSize: 5 });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page<CollectionEntry<'blog'>>;
 }
 
 const { page } = Astro.props;
+
+// Mono stats line under the intro — site-wide counts, not per-page.
+const allPosts = await getPublishedPosts();
+const categoryCount = new Set(allPosts.map((p) => p.data.category)).size;
+const tagCount = new Set(allPosts.flatMap((p) => p.data.tags)).size;
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
@@ -22,12 +33,21 @@ const { page } = Astro.props;
       Practical, no-fluff writing on IT leadership, CRM &amp; revenue plumbing,
       attribution, and AI automation — from someone who still ships the code.
     </p>
+    <p class="stats">
+      <span>{allPosts.length} posts</span>
+      <span class="dot">·</span>
+      <a href="/categories/">{categoryCount} categories</a>
+      <span class="dot">·</span>
+      <a href="/tags/">{tagCount} tags</a>
+    </p>
   </header>
 
   {
     page.data.length > 0 ? (
       <section class="post-list" aria-label="All posts">
-        {page.data.map((post) => <PostCard post={post} />)}
+        {page.data.map((post, i) => (
+          <PostCard post={post} featured={page.currentPage === 1 && i === 0} />
+        ))}
       </section>
     ) : (
       <div class="empty">
