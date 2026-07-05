@@ -24,3 +24,13 @@ Thumbs.db
 
 # local-only planning/strategy doc — kept OUT of the public repo
 content-plan.md
+
+# local-only per-article interview prep + LinkedIn drafts — kept OUT of the public repo
+notes/
+
+# local-only editorial context for /blog skills (claude-blog suite) — kept OUT of the public repo
+BRAND.md
+VOICE.md
+
+# local MCP config for /blog image (references GOOGLE_AI_API_KEY env var) — kept OUT of the public repo
+.mcp.json
