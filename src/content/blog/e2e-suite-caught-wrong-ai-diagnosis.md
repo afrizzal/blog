@@ -130,3 +130,13 @@ Interrogate the test's premises, not only the code's. An assertion can be right 
 AIDA's product pitch is that AI drafts and a human approves before anything reaches a customer. This incident was that contract applied twice over: the agent drafted a diagnosis, and approving it rightly meant tracing it — then my own trace turned out to need the same gate, and the only reviewer senior enough was the runtime.
 
 A test is a story the runtime has to countersign; a diagnosis is a story you have to countersign yourself.
+
+---
+
+## Sources
+
+- Vercel — *Next.js 15 Upgrade Guide*: "GET functions within Route Handlers are no longer cached by default." Retrieved 2026-07-05. <https://nextjs.org/docs/app/guides/upgrading/version-15>
+- Microsoft — *Playwright API reference: APIRequestContext* (requests follow redirects by default, up to 20). Retrieved 2026-07-05. <https://playwright.dev/docs/api/class-apirequestcontext>
+- Microsoft — *Playwright Test: use options* (contexts created via the `browser` fixture inherit the config's `use` options). Retrieved 2026-07-05. <https://playwright.dev/docs/test-use-options>
+- Stack Overflow — *2025 Developer Survey, AI section* (66% of developers name "AI solutions that are almost right, but not quite" their top frustration). Retrieved 2026-07-05. <https://survey.stackoverflow.co/2025/ai>
+- METR — *Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity* (developers estimated a 20% speedup; the RCT measured a 19% slowdown). Retrieved 2026-07-05. <https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/>
