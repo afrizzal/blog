@@ -37,12 +37,16 @@ const updatedLabel = updatedDate?.toLocaleDateString('en-GB', {
   year: 'numeric',
 });
 
+// Build-time social card for this post (see src/pages/open-graph/[...route].ts).
+const ogCard = `/open-graph/blog/${post.id}.png`;
+
 // JSON-LD for rich search results.
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   headline: title,
   description,
+  image: new URL(ogCard, Astro.site).toString(),
   datePublished: pubDate.toISOString(),
   ...(updatedDate ? { dateModified: updatedDate.toISOString() } : {}),
   articleSection: category,
@@ -55,7 +59,10 @@ const jsonLd = {
 <BaseLayout
   title={`${title} — Afrizzal`}
   description={description}
+  image={ogCard}
   type="article"
+  pubDate={pubDate}
+  updatedDate={updatedDate}
   mainClass="shell shell--prose article"
 >
   <div class="read-progress" aria-hidden="true"></div>
