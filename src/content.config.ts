@@ -1,5 +1,6 @@
 import { glob } from 'astro/loaders';
-import { defineCollection, z } from 'astro:content';
+import { z } from 'astro/zod';
+import { defineCollection } from 'astro:content';
 
 // Astro 5 Content Layer API. Posts live as Markdown/MDX files in
 // src/content/blog/. Files whose name starts with "_" are ignored, so you can
