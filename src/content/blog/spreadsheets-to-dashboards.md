@@ -3,12 +3,14 @@ title: 'A more-correct rebuild that nobody trusts is worth nothing'
 description: 'A spreadsheet quietly running part of the business is a production system with real users and a proven spec. You earn the right to replace it by matching its numbers exactly — bugs included — before you change a single thing.'
 category: 'CRM & Revenue'
 pubDate: 2026-06-01
-updatedDate: 2026-06-22
+updatedDate: 2026-10-25
 tags: ['analytics', 'data-modeling', 'crm']
 draft: false
 ---
 
 Every team you join has a spreadsheet quietly running part of the business — the one that calculates commissions, or forecasts pipeline, or decides which accounts get a call this week. It is not a failure of engineering. The shadow IT running your business is a signal, not a mess: a production system with real users and a spec proven by the fact that the business keeps acting on it. The mistake is treating its replacement as a build problem. It is a trust problem. The number in that sheet is correct *by definition* — it is what the business has been acting on — and your job is not to compute a better number. It is to reproduce their number exactly, bug-for-bug, before you earn the right to change anything.
+
+![A translucent new grid floats over an old, patched paper grid; the one cell that still does not line up is edged in amber.](../../assets/blog/spreadsheets-to-dashboards/rebuild-traces-the-sheet.webp "Concept illustration, generated with Codex: the rebuild must trace the old sheet cell for cell, and one cell that disagrees costs the trust.")
 
 ## The sheet is the spec, and the bugs are requirements
 
