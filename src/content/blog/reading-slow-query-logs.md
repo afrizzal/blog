@@ -3,12 +3,15 @@ title: 'Read the slow query log first'
 description: 'Before reaching for a bigger server, read the slow query log. It is the cheapest performance win you will ever get.'
 category: 'Systems & Performance'
 pubDate: 2026-06-05
+updatedDate: 2026-10-25
 tags: ['database', 'performance']
 draft: false
 ---
 
 Before reaching for a bigger server, read the slow query log. It's the cheapest performance
 win you'll ever get.
+
+![A loupe rests over one amber knot in a long paper ribbon, while a large wrapped, unopened block waits in the background.](../../assets/blog/reading-slow-query-logs/the-knot-before-the-bigger-machine.webp "Concept illustration, generated with Codex: find the one tight spot in the log before paying for a bigger machine.")
 
 ## What it tells you
 
