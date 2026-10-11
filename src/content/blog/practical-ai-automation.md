@@ -3,7 +3,7 @@ title: 'Use the model only where it beats a regex on your own data'
 description: 'A model call is the slowest, priciest, least deterministic dependency in your whole system, so you ration it like an unreliable third-party API you call as rarely as you can. The practical skill is putting the model only where fuzzy understanding is genuinely required and doing the boring 80% with deterministic code you can test.'
 category: 'AI & Automation'
 pubDate: 2026-06-09
-updatedDate: 2026-06-22
+updatedDate: 2026-10-25
 tags: ['ai', 'automation', 'architecture']
 draft: false
 ---
@@ -31,6 +31,8 @@ Write the twenty-line version first — the keyword classifier, the heuristic, t
 ## The architecture is a deterministic shell with a small model core
 
 Put it together and the shape is a deterministic shell wrapped around a small model core: cheap rules resolve the clear cases for free, only the ambiguous middle pays for a model call, and the model's own low-confidence tail routes to a human. That's the 80/20 handoff, made into a confidence-routed pipeline.
+
+![Paper tokens on a conveyor drop through plain circle, square and triangle gates; only odd shapes reach a small amber chamber.](../../assets/blog/practical-ai-automation/deterministic-shell-small-model-core.webp "Concept illustration, generated with Codex: simple gates settle most inputs, and only the odd remainder reaches the small, costly core.")
 
 ```ts
 // Most inputs never reach the model. That is the design, not an optimization.
