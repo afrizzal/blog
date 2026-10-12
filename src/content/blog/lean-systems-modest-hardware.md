@@ -3,12 +3,14 @@ title: 'What one box can actually hold (and why you never measured it)'
 description: 'Your scale ceiling is an arithmetic result, not a feeling — throughput is concurrency over latency, and a CPU-bound box tops out at cores divided by CPU-seconds per request. Most systems fall over at a small fraction of that number because of coordination and copies, not because the machine is small.'
 category: 'Systems & Performance'
 pubDate: 2026-06-15
-updatedDate: 2026-06-22
+updatedDate: 2026-10-25
 tags: ['architecture', 'performance', 'scaling']
 draft: false
 ---
 
 "We need to scale" is almost always a euphemism for "we never found out what one box can do." The ceiling of a single modest machine is not a vibe you sense in a planning meeting; it is a number you can compute before you write a line of provisioning YAML. And once you compute it, the uncomfortable truth is that most systems fall over at a small fraction of that number — not because the box is small, but because the application wastes its capacity on coordination and copies. Scale out when you genuinely exceed one machine. But measure the ceiling and actually hit it first, because the distributed tax is paid in 2 a.m. pages, not just dollars.
+
+![A big crate with an amber line marking its capacity near the top, half full of crumpled packing and string, beside a row of small carts.](../../assets/blog/lean-systems-modest-hardware/one-box-measured-ceiling.webp "Concept illustration, generated with Codex: the box has room to spare; the space goes to packing, copies and string.")
 
 ## Constraints are a feature, not a punishment
 
