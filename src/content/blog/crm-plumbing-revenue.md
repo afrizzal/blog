@@ -3,6 +3,7 @@ title: 'CRM plumbing that moves revenue'
 description: 'A CRM is only as good as the data flowing into it. The interesting work is rarely the UI — it is the plumbing.'
 category: 'CRM & Revenue'
 pubDate: 2026-06-12
+updatedDate: 2026-10-25
 tags: ['crm', 'revenue']
 draft: false
 ---
@@ -14,6 +15,8 @@ it's the plumbing.
 
 Most teams lose money in the gaps between systems: an ad platform that never tells the CRM
 which lead converted, or a checkout that forgets the campaign that brought the customer in.
+
+![Three paper tanks joined by pipes; drops escape at one joint wrapped in amber, while a polished tap sits out of focus in front.](../../assets/blog/crm-plumbing-revenue/the-leak-is-at-the-joint.webp "Concept illustration, generated with Codex: the loss happens at the joint between systems, not in the polished front end.")
 
 ## Closing the loop
 
