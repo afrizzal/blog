@@ -3,6 +3,7 @@ title: 'Hello, World'
 description: 'Why I started this blog, what I plan to write about, and a quick tour of the formatting it supports.'
 category: 'Notes'
 pubDate: 2026-06-18
+updatedDate: 2026-10-25
 tags: ['meta', 'career']
 draft: false
 ---
@@ -14,6 +15,8 @@ occasional opinion.
 
 This first post does double duty — it's also a quick check that every piece of formatting
 renders the way it should.
+
+![A folded paper bridge stands finished on a plinth; beside it the same sheet lies unfolded, its crease lines bare, one traced in amber.](../../assets/blog/hello-world/the-finished-thing-and-its-creases.webp "Concept illustration, generated with Codex: a portfolio shows the finished bridge; a blog unfolds the creases that made it.")
 
 ## Why a blog?
 
