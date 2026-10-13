@@ -3,6 +3,7 @@ title: 'My E2E suite caught a wrong AI diagnosis — then it caught mine too'
 description: 'An AI agent blamed a failing Playwright test on Next.js response caching. I traced the code and blamed middleware. We were both wrong about the observation: the test''s "anonymous" context was quietly authenticated. Two stacked bugs, two confident stories, and the re-run as the only reviewer that counted.'
 category: 'AI & Automation'
 pubDate: 2026-07-05
+updatedDate: 2026-10-25
 tags: ['ai', 'testing', 'nextjs', 'reliability']
 draft: false
 ---
@@ -96,6 +97,8 @@ The layering stays honest, too: `getSessionCookie` only proves a cookie exists, 
 Same test, same assertion, same 200. Except now the failure was impossible: the dev server's timing logs itemize the middleware on every request, and its new branch is six type-checked lines that cannot answer a cookie-less `/api/` request with anything but 401. Impossible failures are the most informative kind. If a cookie-less request must get 401 and this request got 200, then the request was not cookie-less.
 
 The tell had been sitting in the spec the whole time. The "anonymous" call used a *relative* URL — `anonContext.request.get('/api/attachments/...')` — and it worked. A manually created context has no idea what host to resolve that against, unless it inherited `baseURL` from the config. And that's exactly what happens: when the browser comes from the test fixture, Playwright's `browser.newContext()` [inherits the config's `use` options](https://playwright.dev/docs/test-use-options). Not just `baseURL` — all of them, including this spec file's `test.use({ storageState: 'admin.json' })`. The "fresh cookie-less context" had been signing every request as the admin from the moment it was created.
+
+![Two spotlights light a stack of boxes and a turnstile, while in the dark between them an envelope meant to be empty holds an amber key.](../../assets/blog/e2e-suite-caught-wrong-ai-diagnosis/two-spotlights-wrong-suspects.webp "Concept illustration, generated with Codex: both stories lit the wrong suspect; the anonymous request was carrying the admin's key.")
 
 So the 200 — the agent's 200, my 200, every 200 this test ever produced — was an authenticated download working exactly as designed. Not a cache replay. Not a login page. And here's the part that stings: the differential observation I'd lectured about, the response's `Content-Type`, would have read `image/png`. One field would have killed my login-page story instantly — while looking, superficially, like support for the agent's cache story. A differential observation only separates the hypotheses you aim it at. The four static falsifiers ruled out caching; the bytes ruled out my redirect; what survived both cuts was a theory nobody had proposed — the test's own premise was false.
 
