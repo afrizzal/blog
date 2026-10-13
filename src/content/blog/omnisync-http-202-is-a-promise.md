@@ -3,6 +3,7 @@ title: 'An HTTP 202 is a promise: why I built OmniSync'
 description: 'Every webhook integration works in the demo. Production loses events in the silence after you reply 200 — so I built OmniSync around one guarantee: once an event is acknowledged, it is never silently lost. At-least-once delivery, idempotent everything.'
 category: 'Systems & Performance'
 pubDate: 2026-07-06
+updatedDate: 2026-10-25
 tags: ['architecture', 'reliability', 'queues', 'postgres']
 draft: false
 ---
@@ -18,6 +19,8 @@ A 500 is honest. The sender knows delivery failed and retries. The reply that lo
 The default shape of a webhook handler does everything inline: validate, transform, write to the database, call the CRM, then respond. Two things are wrong with that. It is slow — a downstream API having a bad day pushes you past the sender's timeout, which triggers retries you now have to survive anyway. And it is fragile in the worst direction: any crash *after* the response means the event is gone while the sender holds a receipt saying you took delivery.
 
 So OmniSync decouples. The API acknowledges with **HTTP 202** — "accepted, not processed", the accurate status code for this contract — and everything else happens asynchronously behind a durable queue. But decoupling doesn't remove the risk; it relocates it into the gaps. Between the ack and the enqueue. Between the queue and the worker. Between the worker and the row. Each gap needs a designed answer, and "we process everything exactly once" is not one of them: a worker that crashes after persisting but before confirming its job *will* see that job again on restart. The only honest contract is **at-least-once delivery** plus **idempotent processing**. Seeing an event twice is normal operation. Storing it twice is the bug.
+
+![An amber receipt already hangs on a hook at the start while a parcel crosses separate platforms, each gap hung with a net.](../../assets/blog/omnisync-http-202-is-a-promise/receipt-first-journey-after.webp "Concept illustration, generated with Codex: the receipt is handed back at once; every gap the event still crosses needs a net.")
 
 ## Keep the hot path boring
 
