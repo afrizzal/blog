@@ -3,6 +3,7 @@ title: 'The upload limit that mattered wasn''t the one in my code'
 description: 'AIDA''s public intake route checks content length, per-file size, a running total, and byte-sniffed MIME type before saving an attachment. None of that mattered once Next.js''s own proxy layer silently truncated the request body first, with no error back to the client.'
 category: 'Systems & Performance'
 pubDate: 2026-07-06
+updatedDate: 2026-10-25
 tags: ['nextjs', 'reliability', 'architecture']
 draft: false
 ---
@@ -47,6 +48,8 @@ A header check first, because it's free. A per-file cap next, because it's cheap
 That request started failing during Phase 2 sign-off — not in a unit test, not in the Testcontainers integration suite, but in a real `docker compose up` cold start, the same discipline that [caught a wrong AI diagnosis](/blog/e2e-suite-caught-wrong-ai-diagnosis/) a day earlier precisely because a green test suite is necessary and not sufficient. And the failure didn't look like either `payload_too_large` or `file_too_large`. It looked like a form that shouldn't have failed, failing anyway, with no clean error the intake route had ever been coded to produce.
 
 The cause was two layers up from any code I'd written. AIDA's `next.config.ts` sets `output: "standalone"`, and a `middleware.ts` runs in front of every request. That combination puts an internal Next.js proxy between the incoming connection and the route handler — and that proxy, independent of anything in `src/app/api`, buffers the request body itself, up to a limit of its own. Next's own documentation states the default plainly: 10MB, and if the body is bigger, "the body will only be buffered up to the limit… the request will **not** fail or return an error to the client." No 413. No 415. The route runs, on a body that is no longer the one the client sent.
+
+![A tall parcel waits by a shadowed first arch with a low amber beam and a cut-off piece on its floor; tall arches line the corridor beyond.](../../assets/blog/upload-limit-that-wasnt-in-my-code/the-lower-beam-upstream.webp "Concept illustration, generated with Codex: the lowest beam is at the first, shadowed arch, long before the generous ones you built.")
 
 The number is the trap. AIDA's own per-file cap is also 10MB, which reads like a coincidence that should have made this safe — it isn't, because the proxy's ceiling caps the *entire* body, not one field of a multipart form. Three attachments at 9MB each sail past every check this code was written to enforce — each file comfortably under the per-file cap, the ~27MB total comfortably under the 30MB combined cap — and the proxy still severs the body at 10MB, a limit that has nothing to do with `MAX_TOTAL_REQUEST_BYTES` and was never in the ticket. The same cold-start pass turned up a second, unrelated silent failure that same week — a `.dockerignore` pattern that wasn't anchored to match nested `node_modules`, quietly feeding 11.8GB of stale worktree directories into the Docker build context and stalling builds past 45 minutes with no error either. Different layer, same shape: nothing crashed, something just quietly stopped being what the code assumed it was.
 
