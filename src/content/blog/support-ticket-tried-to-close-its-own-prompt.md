@@ -3,6 +3,7 @@ title: 'The support ticket that tried to close its own prompt'
 description: 'AIDA classifies support tickets with an LLM, so the classifier has to treat every ticket as a potential attack. The fence around the ticket text is real, but it isn''t the guarantee — the guarantee is that a successful attack still can''t do anything.'
 category: 'AI & Automation'
 pubDate: 2026-07-08
+updatedDate: 2026-10-25
 tags: ['ai', 'llm', 'security', 'reliability']
 draft: false
 ---
@@ -43,6 +44,8 @@ Here's the part that matters more than the regex. The comment at the top of `pro
 ```
 
 And `lib/llm/types.ts`'s port contract backs that up structurally, not just in a comment someone could forget to update — `CompleteParams`/`CompleteResult` carry a system prompt, a user prompt, and a Zod schema to validate the output against. No function list. No tool-calling field of any kind, anywhere in the type. The triage call physically cannot ask the model to invoke anything, because the interface it's built against doesn't have a slot for that. If the fence broke tomorrow — a new lookalike pattern the regex doesn't catch, a Unicode homoglyph, whatever — the worst case is still a ticket that gets classified `URGENT` instead of `NORMAL`. There's no privilege for an attacker to escalate into, because there was never any privilege there to begin with.
+
+![A paper fence with a slat pushed loose; above the empty floor beyond it hangs an amber puppet control bar with no strings attached.](../../assets/blog/support-ticket-tried-to-close-its-own-prompt/a-control-bar-with-no-strings.webp "Concept illustration, generated with Codex: even past a breached fence, the control bar has no strings to pull.")
 
 The integration test proves this against a single ticket body carrying all three attack shapes at once — an instruction to ignore prior instructions, a literal `</ticket_content>` breakout attempt, and a fake API key to see if it leaks:
 
