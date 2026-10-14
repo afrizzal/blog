@@ -3,11 +3,14 @@ title: 'The retry that would have referenced itself'
 description: 'AIDA''s outbound email job derives References and In-Reply-To by querying every prior email-bearing message on the ticket. On a retry, the message being sent already has its own Message-ID persisted from the failed first attempt — without an explicit exclusion, it would show up in its own References chain.'
 category: 'Systems & Performance'
 pubDate: 2026-07-07
+updatedDate: 2026-10-25
 tags: ['reliability', 'queues', 'email', 'architecture']
 draft: false
 ---
 
 AIDA sends agent replies over email through a background job, and background jobs retry. The job that builds the **References** and **In-Reply-To** headers for that email works by querying every prior email-bearing message on the ticket — and on a retry, that query includes the message it's about to send for the second time, because the first attempt already wrote that message's own Message-ID to the database before the send itself failed. Left as written, the query would have made an email cite itself as one of its own ancestors.
+
+![A row of envelopes joined by threads to the ones before them; the last envelope also has an amber loop tied back into itself.](../../assets/blog/retry-that-would-have-referenced-itself/the-reply-that-cites-itself.webp "Concept illustration, generated with Codex: on a retry, the newest message nearly lists itself among its own ancestors.")
 
 ## A queue that retries can't rely on what the last attempt remembered
 
