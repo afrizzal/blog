@@ -3,6 +3,7 @@ title: 'The save that refuses to fail with its side effect'
 description: 'A Google Reviews listing-confirm route taught me that ''it saved'' and ''everything it triggered afterward also worked'' are two different claims, and a response body should never merge them into one.'
 category: 'Systems & Performance'
 pubDate: 2026-07-16
+updatedDate: 2026-10-25
 tags: ['reliability', 'architecture', 'nextjs']
 draft: false
 ---
@@ -32,6 +33,8 @@ The `prisma.branch.update()` that maps the branch to a place ID happens outside 
 ## The response body carries a third state, not two
 
 The naive shape for this response is a boolean — `success: true` or `success: false`. That shape can't represent "the thing you asked for happened, but a step that depends on it didn't." The actual response adds a `warning` field alongside `success: true` and sets `syncResult: null` instead of a populated sync payload, and it does this with an HTTP 200, not a 207 or a custom status — the request succeeded; the caller doesn't need to special-case the status code to find out something is off, it needs to read the body. The listings UI checks for `warning` and renders it as an amber "saved, but…" state rather than either a green success toast or a red error toast, because neither of those is honest about what happened.
+
+![A sealed parcel rests safely in a wall niche with an amber tag, while a paper bird on a thread from it has snagged on a bare branch.](../../assets/blog/the-save-that-refuses-to-fail-with-its-side-effect/saved-but-the-errand-snagged.webp "Concept illustration, generated with Codex: the save is safely done, the errand after it snagged, and the tag says so.")
 
 The same three-state shape shows up again one layer up, in the SSE stream that bulk-syncs every branch on the Overview page:
 
