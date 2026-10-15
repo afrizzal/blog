@@ -3,6 +3,7 @@ title: 'One writer, one lock: a race-proof FIFO stock ledger on plain PostgreSQL
 description: 'Two POS terminals sell the last unit in the same second. Inventory survives that only if every stock mutation goes through one function, one advisory lock, and one idempotency key — and if sub-cent rounding residue dies the moment stock hits zero.'
 category: 'Systems & Performance'
 pubDate: 2026-07-09
+updatedDate: 2026-10-25
 tags: ['postgres', 'concurrency', 'data-integrity', 'architecture']
 draft: false
 ---
@@ -14,6 +15,8 @@ The invariant that design defends is blunt: `stock_balances.totalValue` must equ
 ## Every mutation walks through one door
 
 The ERP has 40 API routers — purchasing, sales, POS checkouts that explode bundle items into component deductions, stock adjustments, returns. Not one of them writes to the stock tables directly. They all call `postStockMovement`, whose doc comment (the codebase is in Indonesian) translates to: *"The only writer of `stock_ledgers` + `stock_balances` (the physical columns onHand/totalValue/avgCost) + `stock_cost_layers`. MUST be called inside the caller's `prisma.$transaction`."*
+
+![Dozens of paper paths curve in from every edge toward one small doorway, where a single amber pen rests on an open ledger.](../../assets/blog/race-proof-fifo-stock-ledger-postgres/many-paths-one-pen.webp "Concept illustration, generated with Codex: many callers, one door, and one pen allowed to write in the ledger.")
 
 That second sentence is structural, not just convention:
 
