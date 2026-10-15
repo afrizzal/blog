@@ -3,6 +3,7 @@ title: 'A 404 that lies on purpose is more honest than a 403'
 description: 'Fixing a cross-tenant IDOR taught me that ''access denied'' and ''does not exist'' are the same message when the requester should never learn which one is true.'
 category: 'Systems & Performance'
 pubDate: 2026-07-15
+updatedDate: 2026-10-25
 tags: ['security', 'reliability', 'architecture', 'data-integrity']
 draft: false
 ---
@@ -25,6 +26,8 @@ export async function assertBranchInGroup(user: User, branchId: string, db = pri
 ## 403 tells the attacker the door exists
 
 A textbook access-control fix returns 403 Forbidden for a branch outside the user's group and 404 Not Found for a branch UUID that doesn't exist at all. That distinction is exactly the leak. If a response code alone tells a requester "this branch exists, you're just not allowed to see it" versus "no such branch," an attacker enumerating UUIDs across groups gets a working existence oracle even after the KPI data itself is locked down. `assertBranchInGroup()` collapses both cases into the same `NotFoundError` — a cross-group branch and a nonexistent one are indistinguishable from the caller's side. The guard never confirms existence; it only ever confirms access.
+
+![Two identical doors flank a folding screen; behind it, a cutaway shows one door leads to a lit room and the other to a blank wall.](../../assets/blog/a-404-that-lies-on-purpose/identical-doors-hidden-difference.webp "Concept illustration, generated with Codex: from outside, a door to a room you may not enter looks the same as a door to nothing.")
 
 The companion routes carry the same instinct further. The branches-list endpoint, `ea8cdcc`, returns a 403 instead of an unscoped list when `scope.type === "all"` and `user.groupId` is undefined — a fail-closed default where the previous behavior (an undefined scope silently resolving to "show everything") would have been the same class of bug from the other direction: a missing value expanding access instead of the guard rejecting it. And a lightweight `?light=1` branches query — added so the public QR-poster page can list branch names without triggering the KPI aggregation — still goes through the same group scoping; a "cheap read" code path is not an exemption from the access model, it's a second implementation of the same access model with less work attached.
 
