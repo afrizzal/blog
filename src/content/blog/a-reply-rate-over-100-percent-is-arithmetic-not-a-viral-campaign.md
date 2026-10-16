@@ -3,6 +3,7 @@ title: 'A reply rate over 100% is arithmetic, not a viral campaign'
 description: 'WhatsApp status counts tallied from a vendor''s delivery log are exclusive latest-state buckets, not a running total — dividing every rate by raw sentCount produced a 177.8% reply rate and a 2,881% delivered rate in production, and the fix needed no new column, only different arithmetic.'
 category: 'CRM & Revenue'
 pubDate: 2026-08-20
+updatedDate: 2026-10-25
 tags: ['crm', 'revenue', 'analytics', 'data-integrity']
 draft: false
 ---
@@ -18,6 +19,8 @@ Nothing in the schema marks that distinction. Three nullable `Int` columns, thre
 ## Dividing by a bucket instead of a total inflates every rate built on it
 
 Every rate on the campaign funnel and the template league — delivered, read, reply, lead — used to divide by that raw `sentCount` bucket, on the assumption it was the campaign's total addressable audience. On a campaign that worked its way mostly through the funnel — most recipients reaching "delivered" or "read," only a handful stuck at "sent" — that denominator is tiny. Divide a healthy reply count by a residual bucket of a few stragglers and the percentage stops meaning anything: a 177.8% reply rate, a 2,881% delivered rate, both real numbers the fix's commit records from production.
+
+![Three bins hold few, more and most tokens; a small cup sized to the near-empty bin overflows with a pour of amber tokens.](../../assets/blog/a-reply-rate-over-100-percent-is-arithmetic-not-a-viral-campaign/the-cup-sized-to-the-stragglers.webp "Concept illustration, generated with Codex: a correct count poured into a cup sized to the stragglers overflows past 100%.")
 
 The campaign row named in the fix's verification checklist shows the mechanism exactly. Accumulated, it should read 470 sent, 452 delivered, 204 read, which unpacks to 18 recipients stuck at sent, 248 stuck at delivered, and 204 at read. Under the old formula its 32 attributed replies divided by that 18-recipient `sentCount` bucket come to 177.8% — the reported figure to the decimal. Divided by the 204 who read, the same 32 replies are 15.7%.
 
