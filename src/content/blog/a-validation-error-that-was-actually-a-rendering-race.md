@@ -3,6 +3,7 @@ title: 'A validation error that was actually a rendering race'
 description: 'AIDA''s Settings AI Features form blocked Save with a "Select a model" error right after switching providers. The real defect sat two React commits away, inside a hidden native select Radix uses to bridge into native form submission — and it never raised an error of its own.'
 category: 'Systems & Performance'
 pubDate: 2026-07-17
+updatedDate: 2026-10-25
 tags: ['reliability', 'testing', 'architecture', 'typescript']
 draft: false
 ---
@@ -53,6 +54,8 @@ Meanwhile the `<option>` elements inside that hidden select aren't static — ea
 ## The value arrived a commit before its own options did
 
 Put those two facts together and the provider switch becomes a race with a fixed, always-losing side. `handleProviderChange` batches all three `setValue` calls into one React commit: the controlled value becomes the new provider's first model, and the visible `SelectItem` children swap to the new catalog, in the same render. The passive effect on the hidden select fires in that same commit's effect phase — before the `<option>` elements have re-registered themselves against the new catalog, because that re-registration is queued for the *next* commit. So the hidden native select receives `select.value = "gpt-5.4-mini"` while its own `<option>` list still only contains the old provider's model names.
+
+![A front panel with new shaped slots and a shadowed twin behind it still cut for the old shapes; an amber token lies fallen between.](../../assets/blog/a-validation-error-that-was-actually-a-rendering-race/the-hidden-twin-one-step-behind.webp "Concept illustration, generated with Codex: the hidden twin still had the old slots, so the new value fell through to empty.")
 
 The browser has an answer for what happens when you assign a `<select>`'s value to something that matches none of its current `<option>`s: per the HTML spec, `selectedIndex` becomes `-1` and `.value` becomes `""`. The assignment silently fails, the hidden select dispatches its `change` event anyway — because the assignment *did* happen, just not to the value that was asked for — and that event's handler calls `onValueChange("")`. React Hook Form's guard against redundant updates only suppresses an `onChange` when the incoming value matches what the field already holds; `""` doesn't match `"gpt-5.4-mini"`, so it sails through and overwrites the very `setValue` call that triggered this whole chain three effects earlier. Nothing threw. Nothing logged. The only visible trace is a form field that quietly forgot what it had just been told, and a zod message on Save that points at the field, not at the four-effect chain that emptied it.
 
