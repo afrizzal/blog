@@ -3,6 +3,7 @@ title: 'A passing healthcheck guarantees order, not readiness'
 description: 'A Docker Compose healthcheck gate held the ingestion worker back until the simulator had already fired a full day of factory telemetry at nobody — MQTT''s clean:false plus QoS 1 only replay into a session that already exists, and none did yet.'
 category: 'Systems & Performance'
 pubDate: 2026-08-24
+updatedDate: 2026-10-25
 tags: ['architecture', 'reliability', 'queues', 'concurrency']
 draft: false
 ---
@@ -14,6 +15,8 @@ LineLens's docker-compose stack gates its startup on healthchecks, and the depen
 LineLens's simulator boots by **warm-starting**: fast-forwarding a full prior sim-day of machine state through its internal clock and publishing the resulting backlog over MQTT in about 1.5 seconds, so that at go-live "yesterday" is always one fully completed sim-day for the Daily Direction Setting board and the order backfill to read. Its healthcheck hits `/healthz` on a small `node:http` control server — which, before the fix, the simulator only started *after* the warm-start burst had finished. The burst was over before the healthcheck's own 20-second `start_period` had even elapsed, so by the time Compose saw the simulator healthy, the backlog was already gone.
 
 `docker-compose.yml` declares `worker.depends_on.simulator: condition: service_healthy`, which Compose honors exactly as written: it will not start the worker container until the simulator's healthcheck passes. That guarantee is real, and it is also not the guarantee anyone reading the compose file assumed they were getting. It answers "is the simulator's process alive and responding" — not "has the worker, some 13 seconds of its own boot and `prisma migrate deploy` and MQTT handshake later, actually subscribed to the topic the simulator floods at boot." Which makes the ordering itself the bug, not a race: on the measured cold start the worker process started three seconds after the burst ended and subscribed 16.2 seconds after it, and `depends_on` guaranteed that sequence on every clean run.
+
+![Envelopes pour from a chute onto an empty spot marked by a dashed amber outline; the basket that should catch them leans flat-packed by the wall.](../../assets/blog/a-healthy-container-is-not-a-ready-subscriber/the-burst-before-the-basket.webp "Concept illustration, generated with Codex: the burst left on time, in order, and landed where the basket was not yet standing.")
 
 ## `clean:false` and QoS 1 only replay into a session that already exists
 
