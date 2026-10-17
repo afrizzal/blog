@@ -3,6 +3,7 @@ title: 'A blocked email is not a failed send'
 description: 'A mail guard that throws an exception when it blocks a message teaches the retry queue to keep attempting a send that will never be allowed to leave the process — the harder design keeps a policy block and a transport failure looking nothing alike, then proves a worker killed after the send is recorded but before acknowledgment leaves one copy, not two.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['reliability', 'queues', 'email', 'architecture']
 draft: false
 ---
@@ -12,6 +13,8 @@ An outbound email guard for a system that has not gone live yet has to hold two 
 ## A blocked message and a failed send have to look nothing alike to the retry logic
 
 Every mail transport in the application is wrapped by a single guard, installed by extending the framework's own mail-manager binding so it resolves to a guarded manager, rather than adding a check inside each mailer. That matters because no caller — a queued job, a mailer built on demand, one member of a composite failover or round-robin transport — has a path around it. The guard reads the message's actual recipients, `to`, `cc` and `bcc` together, asks a **policy** object whether any of them should be blocked, and only forwards the send if the answer is no. One recipient that fails the check blocks the whole message, so there are no partial sends — and because the policy is fail-closed, any path it does not explicitly allow ends as a block.
+
+![Envelopes circle a looped conveyor to be tried again, while one amber envelope has been set aside on a shelf beside the gate.](../../assets/blog/a-blocked-email-is-not-a-failed-send/set-aside-not-sent-round-again.webp "Concept illustration, generated with Codex: a blocked message is a finished decision, taken off the loop, not sent round again.")
 
 ```php
 public function send(RawMessage $message, ?Envelope $envelope = null): ?SentMessage
