@@ -3,6 +3,7 @@ title: 'Renaming an unused parameter is not always a no-op'
 description: 'A Biome lint fix renamed a Playwright fixture''s empty-object parameter to silence a dead-pattern lint error — a no-op for the function body, but Playwright reads that exact syntax shape to resolve fixture dependencies, and the rename crashed every end-to-end test before a single one ran.'
 category: 'Systems & Performance'
 pubDate: 2026-09-07
+updatedDate: 2026-10-25
 tags: ['testing', 'reliability', 'architecture', 'typescript']
 draft: false
 ---
@@ -18,6 +19,8 @@ AIDA's Playwright setup resets a shared rate-limit table between end-to-end test
 `test.extend()` fixtures don't declare their dependencies through a config object or a TypeScript type — they declare them through the literal shape of the fixture function's own first parameter. An object-destructuring pattern, even an empty one, is how a fixture says "I don't need any other fixture before me." Playwright checks that shape while it loads the test files, before any test runs: it reads the fixture function's own source text back through `fn.toString()`, strips the comments, and rejects any first parameter that doesn't start with `{` and end with `}`. A plain identifier fails that check no matter what it's named or whether the function body ever reads it.
 
 Two tools looked at the same parameter slot — `{}` before the rename, `_fixtures` after — and reached opposite conclusions about whether its shape mattered. Biome asked whether anything binds here. Playwright asked whether this is shaped like the contract it requires. `{}` answers no to the first question and yes to the second, and the lint fix only checked the first.
+
+![Two jigsaw pieces side by side; the left piece's empty notch has been patched flat in amber, so the right piece's tab can no longer fit.](../../assets/blog/renaming-an-unused-parameter-is-not-always-a-no-op/the-tidied-notch.webp "Concept illustration, generated with Codex: the empty notch looked like waste to one reader and was the connection to the other.")
 
 ## A load error left no partial blast radius to notice
 
