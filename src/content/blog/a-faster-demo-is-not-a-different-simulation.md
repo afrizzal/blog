@@ -3,6 +3,7 @@ title: 'A faster demo is not a different simulation'
 description: 'A factory-telemetry simulator that replays four hours in 15,000-millisecond steps and again in 150,000-millisecond steps must produce a byte-identical event list, or every calibrated OEE band is only true at the speed you happened to demo it — a discrete-event scheduler makes the tick size irrelevant by design, and a test proves it rather than assuming it.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['testing', 'architecture', 'performance', 'reliability']
 draft: false
 ---
@@ -76,6 +77,8 @@ expect(eventsAtSpeed60.length).toBeGreaterThan(0); // two empty lists would also
 ```
 
 A second test in the same file pushes the claim further: a single `advance()` call straight to the horizon, with no intermediate steps at all, has to produce the identical serialized list too. That's the stronger and more useful version of the guarantee — not "two speeds agree with each other," but "the number of times you ask doesn't matter, only the final timestamp you ask about does." Jumping to the next due event passes both for the same reason: polling frequency was never an input to begin with.
+
+![Two ribbons carry the same row of markers, one under a finely ticked strip, one under a coarse one; amber threads link each twin pair.](../../assets/blog/a-faster-demo-is-not-a-different-simulation/fine-ticks-coarse-ticks-same-events.webp "Concept illustration, generated with Codex: fine ticks or coarse ticks, every event lands in the same place.")
 
 ## Reproducible is not the same claim as uneventful
 
