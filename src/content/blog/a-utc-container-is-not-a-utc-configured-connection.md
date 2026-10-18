@@ -3,6 +3,7 @@ title: 'A UTC container is not a UTC-configured database connection'
 description: 'PostgreSQL stores every timestamp with a time zone as UTC internally, but reads and writes naive timestamp text through the session''s timezone setting, and Laravel sends naive text by default. In a non-UTC session, a training-academy system read instants back seven hours early with zero errors, invisible only because dev and CI containers already ran UTC.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['postgres', 'data-integrity', 'reliability', 'architecture']
 draft: false
 ---
@@ -39,6 +40,8 @@ It surfaced sideways, which is usually how this class of bug surfaces. It wasn't
 ## The accident and the fix looked identical in every environment that mattered
 
 Here's the part that makes this worth writing about rather than just fixing quietly: the bug stayed invisible because of an accident nobody chose, and the accident looked exactly like the fix. Local development ran its Postgres in a container on `Etc/UTC`. CI ran the same image, pinned to the same digest. Every test that had ever touched a timestamp column had done so through a session whose `TimeZone` happened to already be UTC — not because the connection config said so, but because the container's own default did, and nobody had set that on purpose. The missing `'timezone' => 'UTC'` key in the Postgres connection array was a bug with zero observable symptoms in either place a symptom could plausibly have been caught before shipping.
+
+![Two identical clocks show the same time; the left is held by a fitted amber bracket, the right hangs from a nail on a loose string.](../../assets/blog/a-utc-container-is-not-a-utc-configured-connection/same-time-by-chance-and-by-design.webp "Concept illustration, generated with Codex: right by accident and right by design read the same until something moves.")
 
 That's the misconception worth naming: a UTC container is not the same claim as a UTC-configured database connection. One is a fact about the process's own clock and locale. The other is a fact about what a specific PDO session will do with a string that carries no offset. They happen to produce identical behavior right up until something changes the session's zone out from under you — a different server default in staging, a client-side `PGTZ` environment variable nobody set on purpose, a role-level default someone adds later with `ALTER ROLE ... SET timezone`. Nothing in the application layer would notice the switch, because nothing in the application layer was ever checking. The row lock, the transaction boundary, the ORM's type casting — all correct, all irrelevant to a bug that lives entirely in what a naive string means to whoever reads it next.
 
