@@ -3,6 +3,7 @@ title: 'A hand-rolled after-commit step only knows about its own transaction'
 description: 'A duplicate-customer scan ran right after its own transaction returned, but on the website path that transaction was only a savepoint inside the caller''s. A read-only audit, not the 1,319 tests already passing, found that bug and three more like it.'
 category: 'CRM & Revenue'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['crm', 'data-integrity', 'concurrency', 'testing']
 draft: false
 ---
@@ -14,6 +15,8 @@ A training-academy information system I'm building, still pre-production, had 1,
 Creating a customer record also triggers a scan for potential duplicates — matching names, emails, and phone numbers against everyone already in the system. That scan is meant to run only once the new record is durable: candidates are computed from contacts that are already saved, and a scan rolled back along with its transaction would leave a customer with no suggestions at all. So the action ran it on the line right after its own `DB::transaction()` call returned — after commit, as far as the action could tell.
 
 Two call sites exercise that action differently. An admin creating a customer by hand calls it directly — its own transaction is the outermost one, so the scan runs the moment that commit lands. A customer registering through the public website goes through a different path, one that wraps the same action inside the registration flow's own transaction. From the action's point of view, its internal commit stopped being a real commit — its transaction was only a savepoint inside one that hadn't finished yet, and "committing" it just stepped the nesting level back down.
+
+![A small tied box inside a large shipping box with its flaps still open; an amber flag has already popped up from the small box.](../../assets/blog/a-hand-rolled-after-commit-step-only-knows-about-its-own-transaction/the-inner-lid-signals-too-early.webp "Concept illustration, generated with Codex: the inner box closing is not the delivery closing, so its flag goes up too early.")
 
 The bug was that on the website path the scan never waited for the real, outer commit; it ran as soon as the nested call returned, while the registration transaction was still open. A customer who committed inside that window and the new registrant were invisible to each other's scans — each scan could only see committed rows, and the other side hadn't committed yet — so the pair was never flagged.
 
