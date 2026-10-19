@@ -3,6 +3,7 @@ title: 'The setting Next.js 16 stopped supporting is what turned CI red'
 description: 'Next.js 16 removed the ''eslint'' key from its config type, and a key written into next.config.ts anyway didn''t fail at runtime — it failed the type checker. The CI gate sat red for about a week before anyone acted on it, and the first to act was a baseline audit, not anyone watching the build.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['nextjs', 'typescript', 'reliability', 'architecture']
 draft: false
 ---
@@ -34,6 +35,8 @@ This is the part worth sitting with: the key was inert from the day it was writt
 ## A gate that works is not the same as a gate someone is watching
 
 That's the uncomfortable middle of this story: the gate did its job. `tsc --noEmit` failed the moment the line landed, and it kept failing on every push for roughly a week. Nobody fixed it in that window, and nothing in the workflow forced anyone to look — there's no separate mechanism that pages a human when the mandatory check goes red, only the check itself, sitting there. It couldn't even block a merge: branch protection wasn't available on the repo's plan, so the gate the workflow header calls mandatory was advisory in practice.
+
+![A signal post glows amber at an empty railway crossing at night, lighting an empty bench and fallen leaves nobody has disturbed.](../../assets/blog/next-js-16-removed-a-setting-that-still-broke-the-build/a-signal-nobody-watched.webp "Concept illustration, generated with Codex: the signal did its job for days; nobody was there to see it.")
 
 What actually surfaced it wasn't someone noticing a failing badge; it was a baseline audit run against the repo, whose first move was a cold `tsc --noEmit` plus the test suite, specifically to establish what was and wasn't already broken before doing anything else. The audit's record says it plainly: tests green, cold typecheck red, and CI red on exactly this for about seven days.
 
