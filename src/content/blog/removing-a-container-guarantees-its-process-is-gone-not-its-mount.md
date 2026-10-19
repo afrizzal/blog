@@ -3,6 +3,7 @@ title: 'Removing a container guarantees its process is gone, not its mount'
 description: 'A jailed shell on a shared host silently bind-mounted a Docker container''s overlay filesystem into its own view. Three straight docker rm -f runs still found the mount busy, because the thing holding it open was never the container the deploy script could see.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['architecture', 'reliability']
 draft: false
 ---
@@ -40,6 +41,8 @@ That still failed. The next commit theorized a second problem: every failed recr
 The looped version's run printed `umount: merged: not mounted` — while the overlay ID was still sitting in the host's own `/proc/self/mountinfo`. That overturned an assumption baked into every attempt so far, stacking included: that `merged` was itself something you could `umount`. On this host it wasn't. The fix commit's diagnosis was that it had become the *source* of a bind mount living somewhere else, and that `unlinkat` gives `EBUSY` for the root of any active mount, not only for a mountpoint sitting at that exact path — a mechanism the commit asserted rather than tested.
 
 The deployment doc's root-cause note names the somewhere else: the host's jailed-shell layer, cPanel's `virtfs`, had bind-mounted the container's `merged` directory into one account's jail at `/home/virtfs/<account>/var/lib/docker/overlay2/<id>/merged`. That mount sat in a mount table the deploy script could read the whole time, at a path that neither Docker nor any `umount` of `merged` would ever address.
+
+![A paper sheet hangs from a frame with all its clips dropped on the floor, still held at one corner by an amber pin through the wall.](../../assets/blog/removing-a-container-guarantees-its-process-is-gone-not-its-mount/pinned-from-the-next-room.webp "Concept illustration, generated with Codex: every clip you own is off, and something in the next room still holds a corner.")
 
 The working version stopped trying to unmount `merged` directly and instead unmounted every mountpoint whose mountinfo line *referenced* the overlay ID — host namespace and private namespaces alike — logging each matching line first, so the next failure, if there was one, would show exactly what it found instead of just failing again with no more information than the last attempt had. The manual equivalent, as the deployment doc records it:
 
