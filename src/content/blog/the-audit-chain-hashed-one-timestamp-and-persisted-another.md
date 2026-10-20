@@ -3,6 +3,7 @@ title: 'The audit chain hashed one timestamp and persisted another'
 description: 'A weekly audit ledger sealed each finding into a SHA-256 hash chain, but the hash and the database row each read the clock independently — so every untampered entry would have verified as tampered. The fix was one field, passed explicitly instead of left to a schema default.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['data-integrity', 'reliability', 'architecture', 'postgres']
 draft: false
 ---
@@ -56,6 +57,8 @@ What the write path didn't originally do was pass that same value into the datab
 ## SHA-256 does not do "close enough"
 
 This is where a hash chain punishes an assumption that would be harmless almost anywhere else in the codebase. A few milliseconds of drift in a timestamp is nothing to a human reading a log, and nothing to most other parts of this system. To SHA-256 it is everything: flip one bit anywhere in the input and the output is a completely unrelated 256-bit value, by design. There is no partial credit and no "mostly matches."
+
+![A chain of interlocked paper rings with one amber ring whose two ends miss each other by a hair, leaving the ring open.](../../assets/blog/the-audit-chain-hashed-one-timestamp-and-persisted-another/the-link-that-misses-by-a-hair.webp "Concept illustration, generated with Codex: two honest readings a hair apart, and to a hash chain that is a break.")
 
 Against rows from the original write path, the verification route would rebuild each payload with the stored `sealedAt` and compare against a hash derived from a `sealedAt` that was never actually written down. It would essentially never have matched. Not sometimes — on every row, because `@default(now())` fires independently on every single insert. And since `verifyChain()` walks forward from the genesis hash and stops at the first mismatch, the very first entry would have marked the whole chain invalid on every entry's detail page.
 
