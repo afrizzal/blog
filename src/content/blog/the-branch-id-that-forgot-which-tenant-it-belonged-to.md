@@ -3,6 +3,7 @@ title: 'The branch id that forgot which tenant it belonged to'
 description: 'A refactor made a branch entity canonical across tenant workspaces so it could belong to several at once — but the balance queries that filtered on its id kept summing every workspace''s top-ups and usage together, so a workspace with no billing connection configured still saw another tenant''s budget on its dashboard.'
 category: 'CRM & Revenue'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['security', 'data-integrity', 'crm', 'architecture']
 draft: false
 ---
@@ -24,6 +25,8 @@ That side effect was structural tenant isolation. Once `branchId` alone stopped 
 Fourteen query sites across the balance API, the depletion forecast, the finance report, and two low-balance alert checks computed budget and usage by filtering the top-up and usage-entry tables on `branchId`. That was correct arithmetic under the old schema. Under the new one, it silently became: sum every top-up and every usage entry recorded against this branch, across every workspace that happens to share it.
 
 A workspace with no billing connection configured at all — one that could not sync a single broadcast of its own, because usage sync already refused to run without a connection — could still open its balance page and see numbers. Not zeroes. Not an error. Another workspace's real budget, real spend, real depleting balance, rendered as if it belonged there, because the aggregate had no way to know it shouldn't include those rows and nothing told it to exclude them.
+
+![Rain falls on two houses whose shared gutter drains into a glowing barrel at the door of a third, smaller house that gets no rain.](../../assets/blog/the-branch-id-that-forgot-which-tenant-it-belonged-to/one-gutter-three-roofs.webp "Concept illustration, generated with Codex: once the gutter is shared, the barrel at one door collects everyone's rain.")
 
 This is a quieter failure mode than the IDOR shape most access-control writing focuses on — no attacker types `?branchId=other-tenant` and gets back data they weren't supposed to request. Here, every request was for the requester's own, legitimate, correctly-scoped branch. The tenant boundary that used to live in the row disappeared, and the query that used to inherit it for free just kept doing exactly what it always did.
 
