@@ -3,6 +3,7 @@ title: 'The cost of a stock transfer isn''t decided until it''s received'
 description: 'SentraOps ships stock between warehouses through one shared virtual TRANSIT buffer, and a plan-checker caught the flaw before a line of code existed: freezing the unit cost at ship time breaks the moment two transfers of the same item at different costs land in that buffer and get received out of order.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['postgres', 'data-integrity', 'architecture', 'concurrency']
 draft: false
 ---
@@ -32,6 +33,8 @@ Nothing about that looks wrong in isolation. It's the same document, the same li
 ## TRANSIT belongs to the company, not to one transfer
 
 TRANSIT is one warehouse per company, not one scratch space per transfer. If two transfers are shipped around the same time, TRANSIT can be holding two FIFO layers of the same item at two different costs simultaneously — say four units at 100 from one transfer, four units at 150 from another. TRANSIT doesn't know or care which layer "belongs" to which document; FIFO consumption at receive time draws from whichever layer is oldest, full stop.
+
+![Blocks from two chutes stack mixed in one clear tube; the oldest slides out the bottom edged in amber, while a tagged block waits aside.](../../assets/blog/the-cost-of-a-stock-transfer-isnt-decided-until-its-received/the-shared-tube-gives-the-oldest.webp "Concept illustration, generated with Codex: a shared buffer gives up its oldest block, whatever the tag on yours says.")
 
 Receive the second transfer first — a completely legal thing to do, since nothing in the workflow forces receipts to follow shipping order — and its `OUT` from TRANSIT consumes the *first* transfer's layer, not its own. A design that reuses the ship-time `unitCost` would post that receipt at 150 (the number written on its own line) while the ledger actually gave up value costed at 100: 200 of inventory value appears with no goods behind it, and it stays on the books until the other transfer is received and the opposite mismatch cancels it out. With transfers overlapping continuously, TRANSIT may never drain, and the company's total inventory value quietly drifts from the sum of what's actually on the shelves — the exact failure a FIFO ledger exists to prevent.
 
