@@ -3,6 +3,7 @@ title: 'The landed cost that leaked into the vendor-price field'
 description: 'A goods-receipt line''s unitCost field meant two different things at once — the vendor''s price, and that price plus the freight allocated onto it. The moment the second meaning won, the AP invoice''s GR/IR clearing math invented a purchase-price variance that was never real.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['postgres', 'data-integrity', 'architecture', 'concurrency']
 draft: false
 ---
@@ -29,6 +30,8 @@ That function was written in June, with the accounting module's automatic AP/AR 
 The goods-receipt journal itself doesn't care which number lives in `unitCost` — it posts from the allocation result directly. A PO with 300,000 of goods and 100,000 of allocated freight posts a clean three-leg journal: debit **Inventory** 400,000, credit **GR/IR** 300,000, credit **Charge Clearing** 100,000. Balanced, by construction, every time.
 
 The trouble starts one document later. If `unitCost` had been overwritten with the landed figure (1,333.33 and 2,666.67 per unit instead of 1,000 and 2,000), the AP invoice for the vendor's actual 300,000 bill would call `resolveApGrirAmount`, read the landed `unitCost`, and compute a GR/IR debit of 400,000 — money the goods receipt never credited. The invoice would debit GR/IR for more than the receipt credited it, leave a 100,000 hole sitting on that clearing account, and book the difference as a **purchase price variance**: a credit implying the vendor charged 100,000 less than expected. Nothing about the vendor's actual invoice changed. The variance existed purely because one field had quietly stopped meaning what a function in the accounting module still assumed it meant.
+
+![A balance scale with the same stack of goods on each pan; an extra amber crate sitting on the right stack tips the beam down.](../../assets/blog/the-landed-cost-that-leaked-into-the-vendor-price-field/the-crate-that-tipped-the-scale.webp "Concept illustration, generated with Codex: one extra number slipped into a field and tipped the books on the other side.")
 
 ## The fix is a storage decision, not a math one
 
