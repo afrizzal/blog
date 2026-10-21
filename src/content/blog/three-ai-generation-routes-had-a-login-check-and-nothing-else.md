@@ -3,6 +3,7 @@ title: 'Three AI-generation routes had a login check and nothing else'
 description: 'Auditing 263 API routes for AI spend found three image- and video-generation endpoints gated only by ''is this user logged in.'' Any tier, any role, any tenant could burn two paid providers with no cap and no way to tell whose bill it was.'
 category: 'AI & Automation'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['ai', 'security', 'reliability', 'architecture']
 draft: false
 ---
@@ -12,6 +13,8 @@ Auditing 263 API routes on a social-media intelligence platform for a multi-bran
 ## A generic auth check answers a different question than a spending guard
 
 Classified by the entry guard each route file actually calls, 12 of the 263 routes had none whatsoever. Nine of those twelve are intentionally public — a health check, a webhook receiver, things that have to answer before anyone's identity is known. The other three were `vio-generate`, `vio-pipeline`, and `vio-video`: real, expensive AI actions, reachable by any authenticated user regardless of tier, role, or tenant, protected by exactly the same middleware clause that guards a route with nothing to protect.
+
+![An open gate with a pass-check slot stands before a big tank whose three pipes pour amber freely, with no valve or meter on any of them.](../../assets/blog/three-ai-generation-routes-had-a-login-check-and-nothing-else/a-pass-check-and-open-taps.webp "Concept illustration, generated with Codex: the gate checks who is asking; nothing behind it checks how much they may spend.")
 
 **Authentication** answers *who is making this request*. It says nothing about *whether this specific action is one they're entitled to trigger, repeatedly, at someone else's expense*. Those are different claims, and a route that only checks the first one is implicitly assuming the second one doesn't need checking — which is true for a read, and false for anything that calls out to a metered provider. The fix borrowed a pattern the codebase had already gotten right elsewhere:
 
