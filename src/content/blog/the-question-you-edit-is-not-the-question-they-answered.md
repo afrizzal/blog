@@ -3,6 +3,7 @@ title: 'The question you edit is not the question they answered'
 description: 'A branch-satisfaction survey for a multi-branch aesthetic clinic chain went from sixteen hardcoded questions to an admin-editable form, and the entire design turned on one rule: an edit that would change what a past answer means has to fork the question, not overwrite it, and the fork boundary is enforced by what the code can''t do.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
+updatedDate: 2026-10-25
 tags: ['data-integrity', 'architecture', 'postgres', 'reliability']
 draft: false
 ---
@@ -35,6 +36,8 @@ const result = await prisma.$transaction(async (tx) => {
 ```
 
 Insert-then-retire, never the reverse. Postgres wouldn't actually expose a zero-live-row window across a single transaction either way, but the order still does real work: the retire step writes `supersededById: newQuestion.id`, so the new row has to exist before the old one can point at it. Every historical `CsiAnswer.questionId` keeps pointing at the retired row, its content never rewritten, still carrying the exact label and options it was answered against. That guarantee lives in the record, not in every read of it: the branch dashboard deliberately groups every version under the question's stable `key` and charts them as one continuous series under the newest live label, while the admin drill-down still shows each answer beside the `questionLabelSnapshot` it was given against.
+
+![An old card pinned to a board keeps its many threaded answer tags; a new card beside it has none, linked to the old one by an amber thread.](../../assets/blog/the-question-you-edit-is-not-the-question-they-answered/the-old-card-keeps-its-answers.webp "Concept illustration, generated with Codex: the edit makes a new card; every past answer stays tied to the one it answered.")
 
 ## Not every edit is dangerous enough to fork
 
