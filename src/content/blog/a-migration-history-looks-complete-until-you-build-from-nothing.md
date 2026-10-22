@@ -3,11 +3,14 @@ title: 'A migration history looks complete until you build from nothing'
 description: 'A migrations folder that only ever runs on top of an already-existing database proves nothing about whether it can build that schema from scratch, and the gap between what was written down and what was actually in production stayed invisible for months until someone finally tried.'
 category: 'Systems & Performance'
 pubDate: 2026-10-11
+updatedDate: 2026-10-25
 tags: ['postgres', 'data-integrity', 'reliability', 'architecture']
 draft: false
 ---
 
 A migration file that has run cleanly in production for months proves it can extend a database that already has most of the schema. It proves nothing about whether it can build that schema from an empty one. On a marketing-intelligence platform I maintain for a multi-branch aesthetic clinic chain, that distinction was worth 45 tables and nine columns that existed in `schema.prisma` and in the live database, but not in a single file `prisma migrate deploy` would ever run.
+
+![A finished building stands on its old base; its copy rebuilt on bare ground has upper floors floating over missing lower parts traced in amber.](../../assets/blog/a-migration-history-looks-complete-until-you-build-from-nothing/rebuilt-from-bare-ground.webp "Concept illustration, generated with Codex: rebuilt from the written steps alone, the parts added by hand are simply missing.")
 
 ## `db push` doesn't fail loudly; it just stops writing anything down
 
