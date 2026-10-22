@@ -3,11 +3,14 @@ title: 'A random payload will eventually spell your banned substring'
 description: 'A certificate QR code''s base64 PNG and a page''s CSP nonce are random strings inside meaningful HTML, so a test that greps the whole page for a forbidden substring will eventually match the noise. The fix strips or decodes exactly the random part, and the QR check came out stricter than the one it replaced.'
 category: 'Systems & Performance'
 pubDate: 2026-10-12
+updatedDate: 2026-10-25
 tags: ['testing', 'reliability', 'security']
 draft: false
 ---
 
 If a test greps a whole rendered page for a forbidden substring, and that page contains any field whose job is to be random, the test already has a failure rate — nobody has measured it yet. Random strings eventually spell things. On a training-academy information system I'm building, two tests in unrelated features turned out to share exactly that defect, and both were fixed on the same morning, twenty-nine minutes apart: one scanned a certificate PDF's HTML for a forbidden link and found it inside the base64 of a QR code image, the other scanned public pages for template leftovers and found "USD" inside a CSP nonce. Neither page was wrong, and neither fix loosened an assertion.
+
+![A stencil with three cut strokes hovers over randomly scattered paper strips; three amber strips below have fallen into the same pattern.](../../assets/blog/a-random-payload-will-eventually-spell-your-banned-substring/noise-that-matches-the-stencil.webp "Concept illustration, generated with Codex: scan enough random noise for a pattern and chance will draw it for you.")
 
 ## A QR code is a photograph of a string, and the photograph can lie
 
