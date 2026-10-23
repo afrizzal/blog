@@ -3,6 +3,7 @@ title: 'The dangerous SMTP reply is the one that never arrives'
 description: 'An SMTP client whose connection drops after the end-of-data dot but before the server''s reply cannot know whether the message was accepted. A training-academy information system''s mail pipeline refuses to guess: that outcome is recorded as unknown, never retried automatically, and resolved only by a person.'
 category: 'Systems & Performance'
 pubDate: 2026-10-15
+updatedDate: 2026-10-25
 tags: ['reliability', 'queues', 'email', 'architecture']
 draft: false
 ---
@@ -14,6 +15,8 @@ Most of the ways an email send can go wrong are easy to act on. The server says 
 An SMTP send is a short conversation: name the sender, name the recipients, announce the body, stream it, end it with a line holding a single period, then wait for the server's verdict. RFC 5321 is explicit about what a positive verdict means: "once the server has issued a success response at the end of the mail data, a formal handoff of responsibility for the message occurs" — from then on, the server must either deliver the message or report that it couldn't. The server decides to accept on its own side. The client finds out one round trip later, if the connection survives that long.
 
 That window is as old as the protocol. RFC 1047, from 1988, calls it a synchronization problem: once the receiver has decided to accept, the message is live on both machines, and the sender — which has to assume nothing was delivered until it reads the 250 — delivers it again if the link dies first. The current standard still carries the warning: a spurious timeout while the client waits for that reply "would typically result in delivery of multiple copies of the message," and servers are told to answer the final dot as fast as they can for exactly that reason. Between mail servers, the conventional answer is to re-deliver and live with the occasional duplicate. An application sending one trainee a payment link or a schedule reminder gets to choose differently.
+
+![An envelope slides through a slot in a dark wall; the return chute beside it is empty, and an amber tag hangs between two empty trays.](../../assets/blog/the-dangerous-smtp-reply-is-the-one-that-never-arrives/the-answer-that-never-came-back.webp "Concept illustration, generated with Codex: the message went through, no answer came back, and the honest tag fits neither tray.")
 
 The receiving side of the same contract — once you acknowledge, you own it — is what [OmniSync](/blog/omnisync-http-202-is-a-promise/) is built around. This post is about the other side: the one that never hears the acknowledgment.
 
