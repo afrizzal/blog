@@ -3,6 +3,7 @@ title: 'A deadlock fix that passes is not a deadlock fix you understand'
 description: 'A payment-link reissue stopped deadlocking once it wrote its rows in a different order, and the race test went green four runs in a row — but that order rested on PostgreSQL firing foreign-key triggers alphabetically. The fix that merged takes its own locks in a stated order and re-checks status under them.'
 category: 'Systems & Performance'
 pubDate: 2026-10-14
+updatedDate: 2026-10-25
 tags: ['postgres', 'concurrency', 'testing', 'architecture']
 draft: false
 ---
@@ -14,6 +15,8 @@ On a training-academy information system I'm building, still pre-production, a t
 A registration belongs to a customer. An admin can copy a fresh payment link for that registration to send over chat — call it the copy action — which revokes the previous link, issues a new one, and writes a history row recording that a link was shared. Independently, the customer can upload payment proof through the link, an admin can cancel or transfer the registration, staff can attach a document to it, and two customer identities can be merged. Every one of those writers ends up holding the customer row, the registration row, or both.
 
 When every writer funnels through one function, as in [a FIFO stock ledger I built earlier](/blog/race-proof-fifo-stock-ledger-postgres/), one lock settles the question. Here the writers live in different modules, so what settles it is a convention: a global lock order — customer first, registration after it, the link table last — written into the payment data dictionary, and enforced for customer-owned writes by a small helper that locks the customer `FOR UPDATE` as the first statement of the transaction. The copy action never called that helper. The only lock it took on purpose was an advisory lock that keeps two link issuances for the same registration from overlapping.
+
+![Rows of tokens arrive from three directions and merge onto one painted amber line that passes the first gate, then the second.](../../assets/blog/a-deadlock-fix-that-passes-is-not-one-you-understand/one-stated-order-through-two-gates.webp "Concept illustration, generated with Codex: writers from every side stay clear of each other only if all take the gates in one stated order.")
 
 ## The race test was written to retire a caveat, and it found three deadlocks
 
