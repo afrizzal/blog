@@ -3,6 +3,7 @@ title: 'A negative assertion with two arguments checks nothing'
 description: 'In Pest, ->not->toContain($needle, $label) reads like one check with a failure message attached. toContain is variadic, so the label is a second needle and the negation only fires when the page contains both — which turned a 75-check privacy sweep into one that practically verified nothing.'
 category: 'Systems & Performance'
 pubDate: 2026-10-13
+updatedDate: 2026-10-25
 tags: ['testing', 'reliability', 'privacy']
 draft: false
 ---
@@ -30,6 +31,8 @@ expectNoAnalyticsTag($this->get('/admin/login')->assertOk(), 'admin login');
 Most assertion APIs treat a trailing string as a failure message, and the line was written as if Pest did too. Pest's signature is `toContain(mixed ...$needles)`: it loops over the needles and asserts each one is present, so the positive form passes only when the subject contains every argument. `->not` is implemented by running the wrapped expectation and passing if it throws. Put those together and `->not->toContain('googletagmanager', 'admin login')` throws — and therefore fails the negation — only when the page contains the tag *and* the literal text "admin login". The labels were short descriptions like that one, or the name of a thank-you page, or a link's purpose; a page has no reason to contain them verbatim, so the second needle was missing on almost every call — and on each of those calls the wrapped expectation threw and the negation passed, whatever the page contained.
 
 That is a **vacuous assertion**: one that cannot fail for the reason its name claims. Nothing about it is syntactically wrong. A variadic parameter accepts the extra string without complaint, and a string is a perfectly valid needle.
+
+![A ball rolls through a doorway, snapping the low tripwire, but the net above stays up: its second wire runs to an amber name tag on the wall.](../../assets/blog/a-negative-assertion-with-two-arguments-checks-nothing/a-net-that-needs-two-tripwires.webp "Concept illustration, generated with Codex: the label became a second tripwire, so the net only drops when both are pulled.")
 
 ## Whether a check worked depended on what its label happened to say
 
