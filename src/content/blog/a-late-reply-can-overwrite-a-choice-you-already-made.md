@@ -3,6 +3,7 @@ title: 'A late reply can overwrite a choice you already made'
 description: 'A registration form''s file-upload fields each fire an async initialization request on load. When one of those responses lands after the user has already picked a schedule, its older snapshot is merged over the newer choice and a generic required-field error blocks the save — and the first guard against it collided with the framework''s own queue.'
 category: 'Systems & Performance'
 pubDate: 2026-10-16
+updatedDate: 2026-10-25
 tags: ['concurrency', 'testing', 'reliability']
 draft: false
 ---
@@ -20,6 +21,8 @@ The test fix adds no sleep. A small helper counts Livewire commits from `livewir
 ## The response that lands last wins, even when it carries the oldest state
 
 A synchronized test only makes the race deterministic; it doesn't make it go away. Each `FileUpload` loads its file list through its own async call, with its own message and request, and each of those carries the component snapshot as it was when the request left. With the versions in use — Livewire 4.4.5 and Filament 5.8.2 — when one of those responses was merged after the user's own commit, its older snapshot overwrote the newer state, and the schedule and customer the user had just picked went back to their initial values: empty.
+
+![A card on a board has one choice pinned; a late paper glider brings an older, unmarked copy, edged in amber, about to cover it.](../../assets/blog/a-late-reply-can-overwrite-a-choice-you-already-made/the-late-copy-lands-on-top.webp "Concept illustration, generated with Codex: the reply that lands last wins, even when it carries the older copy.")
 
 Nothing in that sequence raises an error that names the cause. The browser's own `required` check on the now-empty select is what blocks the save, and it tells a user who just filled the field to go fill it. It rhymes with [a validation error that was actually a rendering race](/blog/a-validation-error-that-was-actually-a-rendering-race/), but the mechanism is different in a way that matters: there, a hidden form element wrote an empty value over the field on every provider switch, deterministically, through React's own commit order. Here, nothing on the page misbehaves on its own — the rollback depends on how independent requests interleave, so a fast local run can pass every time while a slow network, or a server answering requests on several workers, reorders the replies.
 
