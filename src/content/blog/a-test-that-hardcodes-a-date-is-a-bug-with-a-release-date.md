@@ -3,11 +3,14 @@ title: 'A hardcoded date in a test is a bug with a release date'
 description: 'A test that pins a session to a real calendar date was harmless until a correct rule began locking a session''s room once it starts. One such test failed in CI on schedule; a clock-shifting audit of 18 suspect files found the other with about nine hours left before it would have fired.'
 category: 'Systems & Performance'
 pubDate: 2026-10-17
+updatedDate: 2026-10-25
 tags: ['testing', 'reliability', 'architecture']
 draft: false
 ---
 
 A date literal in a test fixture is harmless until some code under test starts comparing it to the clock. From that commit on, the test has a release date: it passes on every run until the wall clock crosses the date someone typed, then fails on every run after, with no code change in between. That isn't flakiness — flaky means unpredictable, and this is a deadline. On a training-academy information system I'm building, still pre-production, one correct business rule armed two of those deadlines in a single commit. The first went off in CI nine days later. The second was caught by a deliberate audit with about nine hours left on its fuse.
+
+![A disc rolls along a straight paper track, motion lines behind it, toward an amber flag pinned into the track at one fixed point.](../../assets/blog/a-test-that-hardcodes-a-date-is-a-bug-with-a-release-date/the-present-meets-the-pinned-flag.webp "Concept illustration, generated with Codex: a date typed into a test is a flag the moving present will reach.")
 
 ## A rule that locks the past was working exactly as designed
 
