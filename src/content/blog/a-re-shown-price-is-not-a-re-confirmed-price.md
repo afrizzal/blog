@@ -3,6 +3,7 @@ title: 'A re-shown price is not a re-confirmed price'
 description: 'A transfer modal refused a stale price and redrew the correct one, yet the retry failed the same way: the preview was recomputed on every render, while the hidden price it resubmitted only changed when a batch was picked. The fix writes that token from the same query at the moment of rejection.'
 category: 'Systems & Performance'
 pubDate: 2026-10-18
+updatedDate: 2026-10-25
 tags: ['concurrency', 'reliability', 'architecture', 'data-integrity']
 draft: false
 ---
@@ -33,6 +34,8 @@ Text::make(fn (Get $get): string => self::summary($registrationId, $get('target_
 ```
 
 Read side by side, the bug is already there. The preview line has no memory; it asks the database each time the modal renders. The token has nothing but memory; it updates only when the select changes. A rejection re-renders the modal without the admin choosing anything new, so the text moves on to the current price while the token stays where the select left it.
+
+![A display card shows a fresh tall bar; a hidden slip clipped behind it, edged in amber, still shows the older, shorter bar.](../../assets/blog/a-re-shown-price-is-not-a-re-confirmed-price/the-front-card-and-the-stale-slip.webp "Concept illustration, generated with Codex: the card on show was redrawn; the slip that gets submitted still carries the old value.")
 
 ## The browser test reproduced it with one direct price update
 
