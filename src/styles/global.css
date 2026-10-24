@@ -569,7 +569,9 @@ a.tag:active { transform: translateY(1px); }
 }
 
 /* ---- PROSE: the reading system ------------------------------------------ */
-.prose { font-size: var(--fs-base); line-height: var(--lh-body); color: var(--text-primary); }
+/* overflow-wrap: a bare URL or path in a Sources entry is one unbreakable "word"
+   wider than a phone; let it break instead of widening the whole page. */
+.prose { font-size: var(--fs-base); line-height: var(--lh-body); color: var(--text-primary); overflow-wrap: break-word; }
 .prose > * + * { margin-top: var(--space-6); }
 .prose p { color: #d6dde6; text-wrap: pretty; }
 

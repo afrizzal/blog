@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="400" viewBox="0 0 720 400" role="img" aria-labelledby="chart-title chart-desc">
+  <title id="chart-title">Source frames in the final take</title>
+  <desc id="chart-desc">Counts of SOURCE screencast frames (JPEG files listed in a take log). Not output video frames, not render time, not file or archive size. final take r2 of the cashier tutorial (the first take is a different recording and is deliberately not included). Original take: 23,896 source frames, comprising 11,986 picked at some 30 fps output time and 11,910 never picked. Derived take for 30 fps: 11,986 source frames. Both bars share a linear axis from zero to 25,000 source frames.</desc>
+  <rect width="720" height="400" fill="#0d1526"/>
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="22" fill="#e6edf3">
+    <text x="32" y="50" font-size="26" font-weight="600">Source frames in the final take</text>
+    <text x="32" y="82" fill="#9aa4b2">Screencast JPEGs listed in the take log</text>
+    <text x="32" y="112" fill="#6e7681">Not output frames, render time or file size</text>
+    <rect x="32" y="139" width="20" height="18" rx="2" fill="#3b82f6"/>
+    <text x="62" y="156" >picked at some 30 fps output time</text>
+    <rect x="504" y="139" width="20" height="18" rx="2" fill="#172036" stroke="#6e7681" stroke-width="1.5"/>
+    <text x="534" y="156" >never picked</text>
+    <text x="32" y="195" >Original take</text>
+    <text x="32" y="285" >Derived take for 30 fps</text>
+  </g>
+  <g stroke="#243048" stroke-width="1">
+    <path d="M 32 205 V 251 M 32 295 V 345"/>
+    <path d="M 142 205 V 251 M 142 295 V 345"/>
+    <path d="M 252 205 V 251 M 252 295 V 345"/>
+    <path d="M 362 205 V 251 M 362 295 V 345"/>
+    <path d="M 472 205 V 251 M 472 295 V 345"/>
+    <path d="M 582 205 V 251 M 582 295 V 345"/>
+  </g>
+  <rect x="32" y="209" width="262.692" height="34" fill="#3b82f6"/>
+  <path d="M 297.442 209.75 H 552.962 Q 556.962 209.75 556.962 213.75 V 238.25 Q 556.962 242.25 552.962 242.25 H 297.442 Z" fill="#172036" stroke="#6e7681" stroke-width="1.5"/>
+  <path d="M 32 299 H 291.692 Q 295.692 299 295.692 303 V 329 Q 295.692 333 291.692 333 H 32 Z" fill="#3b82f6"/>
+  <rect x="565.712" y="209" width="110" height="34" fill="#0d1526"/>
+  <rect x="303.692" y="299" width="110" height="34" fill="#0d1526"/>
+  <g font-family="&quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="26" fill="#e6edf3">
+    <text x="569.712" y="235" >23,896</text>
+    <text x="307.692" y="325" >11,986</text>
+  </g>
+  <g font-family="&quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Consolas, &quot;Liberation Mono&quot;, monospace" font-size="22" fill="#9aa4b2" text-anchor="middle">
+    <text x="32" y="368" >0</text>
+    <text x="142" y="368" >5K</text>
+    <text x="252" y="368" >10K</text>
+    <text x="362" y="368" >15K</text>
+    <text x="472" y="368" >20K</text>
+    <text x="582" y="368" >25K</text>
+  </g>
+</svg>
