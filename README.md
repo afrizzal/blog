@@ -1,6 +1,6 @@
 # blog.afrizzal.pro
 
-Blog pribadi Afrizzal — **Astro 6 (static)**. Hasil build = HTML statis biasa, jadi bisa
+Blog pribadi Afrizzal — **Astro 7 (static)**. Hasil build = HTML statis biasa, jadi bisa
 di-host di shared hosting apa pun. **Tidak butuh PHP/MySQL saat runtime.**
 
 > Catatan SEO: blog ini sengaja **tidak** memakai trik base64/anti-devtools seperti porto,
@@ -9,7 +9,7 @@ di-host di shared hosting apa pun. **Tidak butuh PHP/MySQL saat runtime.**
 ## Prasyarat
 
 - **Volta** mengatur versi Node otomatis per-project (sudah terpasang).
-- Folder blog ini di-**pin ke Node 22** (lihat field `"volta"` di `package.json`); project lain tetap Node 20 (default Volta). Tidak perlu switch manual — cukup `cd` ke folder ini.
+- Folder blog ini di-**pin ke Node 22.23.4** (lihat field `"volta"` di `package.json`); project lain tetap memakai versinya sendiri. Versi ini juga menjadi minimum Node 22 pada build Hostinger.
 
 ## Sekali setup
 
@@ -66,7 +66,7 @@ di servernya, lalu menyajikan isi `dist/`. Tidak ada kredensial FTP di GitHub.
 1. hPanel → **Websites → Add Website → Node.js Apps** → **Import Git Repository**.
 2. Authorize **Hostinger GitHub App** → pilih repo `afrizzal/blog` + branch `master`.
 3. Hostinger mendeteksi Astro otomatis. Pastikan: Build command `npm run build`,
-   Output directory `dist`, Node.js `22.x` (dipilih otomatis dari field
+   Output directory `dist`, Node.js `22.x` dengan patch minimal `22.23.4` (dipilih dari field
    `engines` di `package.json`).
 4. Deploy, lalu **Connect domain** → arahkan `blog.afrizzal.pro` ke app ini
    (SSL terpasang otomatis).
@@ -89,6 +89,19 @@ terbukti stabil.
 > `public/.htaccess` tidak lagi dipakai (redirect HTTPS/www dan SSL ditangani
 > platform). File itu tetap disertakan agar `dist/` tetap kompatibel dengan
 > hosting Apache/LiteSpeed biasa (fallback FTP).
+
+### Jika push belum terlihat di situs live
+
+CI GitHub yang hijau membuktikan build lolos; status deployment tetap diperiksa
+di hPanel → website blog → Deployments. Cocokkan commit deployment dengan HEAD
+`master`, lalu baca log build bila gagal. Jika commit belum dideploy, periksa
+koneksi repository/branch dan jalankan redeploy. Setelah build terbaru berhasil,
+periksa HTML artikel dan URL gambarnya sebelum menyimpulkan masalah cache.
+
+Pembaruan keamanan otomatis Hostinger hanya membuat pull request. Perubahan
+dependensi baru berlaku setelah PR digabung dan deployment berikutnya berhasil.
+Astro 7 menggunakan processor `unified()` agar plugin caption, tabel, dan blok
+kode yang sudah ada tetap dijalankan.
 
 ## Yang sudah termasuk
 
@@ -117,7 +130,7 @@ public/           ← .htaccess, robots.txt, favicon.png
 
 Versi Node diatur per-project oleh [Volta](https://volta.sh) — tidak mengganggu project lain:
 
-- **Blog ini → Node 22** (di-pin di `package.json`: `"volta": { "node": "22.x" }`).
+- **Blog ini → Node 22.23.4** (di-pin di `package.json`: `"volta": { "node": "22.23.4" }`).
 - **Project lain → Node 20** (default Volta).
 
 Di terminal baru, Volta otomatis memilih versi Node sesuai folder yang sedang aktif.
