@@ -3,6 +3,7 @@ title: 'A rounded score is not a passing grade'
 description: 'A training-academy information system I''m building had an exam scorer whose only output was a two-decimal float. Rounded, 2/3 clears a 66.67 passing grade it doesn''t meet; unrounded, PHP turns an exact 57/100 into 56.99999999999999 and fails it. The fix keeps the fraction in integers and rounds once, for display.'
 category: 'Systems & Performance'
 pubDate: 2026-10-19
+updatedDate: 2026-10-25
 tags: ['data-integrity', 'reliability', 'architecture', 'postgres']
 draft: false
 ---
@@ -53,6 +54,8 @@ final class Scoring
 ## Rounding moves candidates across the bar
 
 Take a post-test of three equally weighted questions and a candidate who gets two right. The exact score is 2/3, which is 66.666…%. The scorer stores `66.67`. Now set the passing grade at 66.67. Measured exactly, the candidate falls short — two thirds is less than 66.67 hundredths. Measured against the stored value, `66.67 >= 66.67` is true, and they pass. Rounding didn't just lose precision here; it promoted a score over a bar it never reached.
+
+![A column stops just short of a thin crossbar, but a blunt amber brush stroke rounds its top upward until it overlaps the bar.](../../assets/blog/a-rounded-score-is-not-a-passing-grade/the-blunt-stroke-crosses-the-bar.webp "Concept illustration, generated with Codex: the exact value stops short of the bar; the rounded one reaches over it.")
 
 Set the bar at 66.66 instead and both paths agree on a pass. That is why this class of bug survives casual testing: it only shows up when the passing grade lands inside the sliver between the exact score and its rounded value, and nobody writes that test case unless they're already looking for it.
 
