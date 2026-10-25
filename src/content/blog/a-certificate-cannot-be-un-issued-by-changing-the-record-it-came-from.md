@@ -3,6 +3,7 @@ title: 'A certificate cannot be un-issued by changing the record it came from'
 description: 'A training-academy information system never auto-revokes a certificate when the completion record behind it changes. A cancelled batch, a corrected attendance record or a superseded override opens a review instead, because revocation can''t be undone and a stale credential can''t be left silently valid.'
 category: 'Systems & Performance'
 pubDate: 2026-10-20
+updatedDate: 2026-10-25
 tags: ['data-integrity', 'architecture', 'reliability', 'postgres']
 draft: false
 ---
@@ -14,6 +15,8 @@ A completion record is never really final. A batch gets cancelled after some of 
 Until issuance, "is this person certified" is a query against live state: evaluate the completion rules, check payment, return an answer. Issuance turns that answer into a numbered PDF behind a download link, and from then on "update the row" and "fix the problem" stop being the same operation. When the record underneath changes, there are two ways to get it wrong. Revoke automatically, and a correction that later turns out to be mistaken has already killed a credential — and revocation here is final: it can't be undone, and the certificate number is never reused. Do nothing, and a credential stays valid that the record no longer supports.
 
 The decision log rules out both. Revocation is irreversible, so it may not be automatic; the project charter separately requires that a credential never be left valid silently. What's left is a third option: record that the question exists, block anything that would build on top of it, and make a person answer it.
+
+![A certificate has flown out of an open window; inside, a record has slid out of its stack, and an amber flag waits on an empty desk.](../../assets/blog/a-certificate-cannot-be-un-issued-by-changing-the-record-it-came-from/the-flag-raised-for-a-person.webp "Concept illustration, generated with Codex: the certificate has left; a change in its record raises a question for a person.")
 
 ## Four kinds of change open a review, and none of them touches the certificate
 
