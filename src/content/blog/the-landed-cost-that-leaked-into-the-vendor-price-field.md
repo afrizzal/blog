@@ -3,12 +3,12 @@ title: 'The landed cost that leaked into the vendor-price field'
 description: 'A goods-receipt line''s unitCost field meant two different things at once — the vendor''s price, and that price plus the freight allocated onto it. The moment the second meaning won, the AP invoice''s GR/IR clearing math invented a purchase-price variance that was never real.'
 category: 'Systems & Performance'
 pubDate: 2026-09-29
-updatedDate: 2026-10-25
+updatedDate: 2026-10-29
 tags: ['postgres', 'data-integrity', 'architecture', 'concurrency']
 draft: false
 ---
 
-SentraOps, the study-case ERP I built around a multi-branch aesthetic clinic chain's workflows, added landed-cost allocation so freight and duty on a purchase order can raise the recorded cost of the goods it bought — a feature every ERP eventually needs. The obvious place to store that raised number was the goods-receipt line's `unitCost` field, since it already held a cost. One self-review pass, before the mandatory code-review gate even ran, caught that `unitCost` already had a job: pricing the clearing entry on the AP invoice. Giving it a second job silently invented a purchase-price variance that had never happened.
+SentraOps, the study-case ERP I lead, designed around a multi-branch aesthetic clinic chain's workflows, added landed-cost allocation, built by a teammate, so freight and duty on a purchase order can raise the recorded cost of the goods it bought — a feature every ERP eventually needs. The obvious place to store that raised number was the goods-receipt line's `unitCost` field, since it already held a cost. The teammate's own self-review pass, before the mandatory code-review gate even ran, caught that `unitCost` already had a job: pricing the clearing entry on the AP invoice. Giving it a second job silently invented a purchase-price variance that had never happened.
 
 ## A field already has one reader before you add a second meaning to it
 
@@ -56,7 +56,7 @@ Where the landed unit cost has to be *displayed* — the goods-receipt detail pa
 
 ## A negative control proves the regression test actually tests something
 
-The bug was caught by reading the code, not by a failing test — a self-review pass that asked one question, who else reads `GoodsReceiptLine.unitCost`, ahead of the feature's mandatory code-review gate. The same trace cleared every other reader: creating an AP invoice from the PO and posting a purchase return both price from the PO line's `unitPrice`, and the journal backfill and supplier lead-time analytics never read the unit cost at all.
+The bug was caught by reading the code, not by a failing test — the teammate's own self-review pass, which asked one question, who else reads `GoodsReceiptLine.unitCost`, ahead of the feature's mandatory code-review gate. The same trace cleared every other reader: creating an AP invoice from the PO and posting a purchase return both price from the PO line's `unitPrice`, and the journal backfill and supplier lead-time analytics never read the unit cost at all.
 
 What makes the fix worth trusting is what happened next: case #1's `unitCost` expectation flipped from `1333.3333` to `1000`, and a regression test was added that posts a landed-cost goods receipt, invoices it, and asserts the GR/IR debit equals the vendor's 300,000, not the landed 400,000. To prove that assertion would actually have caught the original bug, the old behavior — overwriting `unitCost` with the landed figure — was temporarily reinstated against the same test.
 
@@ -64,9 +64,9 @@ It failed exactly as predicted: `expected '400000' to be '300000'`. That's the d
 
 ## A shared resource needs its own kind of lock
 
-Fixing the field-overloading bug didn't fix everything the feature touched. Posting a goods receipt reads the PO's list of allocated charges to compute the allocation, and that list was read outside the posting transaction, while the guard that freezes charges once a receipt posts wasn't transactional either — a pre-merge review flagged it as the one blocker. Create or delete a charge at the exact moment a receipt is posting, and the cost layer and the journal could disagree with the charge table permanently, since a posted receipt can never be reopened.
+Fixing the field-overloading bug didn't fix everything the feature touched. Posting a goods receipt reads the PO's list of allocated charges to compute the allocation, and that list was read outside the posting transaction, while the guard that freezes charges once a receipt posts wasn't transactional either — my pre-merge review flagged it as the one blocker. Create or delete a charge at the exact moment a receipt is posting, and the cost layer and the journal could disagree with the charge table permanently, since a posted receipt can never be reopened.
 
-The fix takes a Postgres advisory lock, scoped per purchase order, as the first statement inside the receipt-posting transaction — always before the per-item balance locks the stock-posting function takes, so the two can't deadlock — re-reads the charge list inside that transaction, and routes every charge mutation through the same lock so it queues instead of racing.
+The fix I added takes a Postgres advisory lock, scoped per purchase order, as the first statement inside the receipt-posting transaction — always before the per-item balance locks the stock-posting function takes, so the two can't deadlock — re-reads the charge list inside that transaction, and routes every charge mutation through the same lock so it queues instead of racing.
 
 It's worth naming why this needed an explicit lock while a sibling feature shipped the next day — price-list edits — didn't: a price list's own update transaction writes its header row first (always a real write, since `@updatedAt` changes on every save), and that write already serializes concurrent editors as a side effect, a mutex it gets for free from the shape of the write itself. Goods-receipt posting has no equivalent shared row to write first — the lock had to be added on purpose, because nothing about the transaction's existing writes would have serialized it by accident.
 
