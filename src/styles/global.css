@@ -865,6 +865,12 @@ a.tag:active { transform: translateY(1px); }
   .nav__toggle:focus-visible ~ .nav__burger { box-shadow: var(--focus-ring); }
 }
 
+/* Just above the collapse point the six nav items run ~10px past the row;
+   tighter link padding keeps the Portfolio button inside it. */
+@media (min-width: 641px) and (max-width: 720px) {
+  .nav__link { padding-inline: var(--space-2); }
+}
+
 @media (max-width: 560px) {
   .page { padding-top: calc(var(--nav-height) + var(--space-10)); }
   .card { padding: var(--space-5); }

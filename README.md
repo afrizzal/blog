@@ -50,9 +50,15 @@ npm install
 ## Build lokal
 
 ```
-npm run build      # menghasilkan folder dist/
+npm run build      # menghasilkan folder dist/ (+ indeks pencarian dist/pagefind/)
 npm run preview    # cek hasil build lokal
 ```
+
+Halaman `/search/` memakai [Pagefind](https://pagefind.app): script `build` menjalankan
+`pagefind --site dist` setelah `astro build`, dan yang diindeks hanya bagian bertanda
+`data-pagefind-body` di `BlogPost.astro` (judul, lead, tag, isi artikel). Pengecualian
+selector ada di `pagefind.yml`. Indeks hanya ada setelah build, jadi di `npm run dev`
+halaman search menampilkan pesan "index isn't available" — pakai `npm run preview`.
 
 ## Deploy otomatis (push → live) — Hostinger Git deployment
 

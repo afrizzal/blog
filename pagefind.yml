@@ -1,0 +1,10 @@
+# Pagefind indexes dist/ after `astro build` (see the build script). Only the
+# regions marked data-pagefind-body in BlogPost.astro are indexed, so list,
+# category and tag pages stay out of the results.
+exclude_selectors:
+  # Heading permalink glyph ("#") appended by rehype-prose.
+  - ".anchor"
+  # Code-block chrome: window dots and language label, plus the copy button
+  # (a sibling of the bar, not inside it).
+  - ".code-block__bar"
+  - ".code-block__copy"

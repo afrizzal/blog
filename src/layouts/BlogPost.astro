@@ -36,6 +36,12 @@ const updatedLabel = updatedDate?.toLocaleDateString('en-GB', {
   month: 'short',
   year: 'numeric',
 });
+// Same format as FormattedDate; shown on /search/ results.
+const pubDateLabel = pubDate.toLocaleDateString('en-GB', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+});
 
 // Build-time social card for this post (see src/pages/open-graph/[...route].ts).
 const ogCard = `/open-graph/blog/${post.id}.png`;
@@ -71,10 +77,12 @@ const jsonLd = {
     <a class="back-link" href="/"><span class="arrow">←</span> All posts</a>
   </div>
 
-  <header class="article-header">
+  {/* data-pagefind-body marks what /search/ indexes: this header (title, lead,
+      tags) and the article body. Category and date ride along as result meta. */}
+  <header class="article-header" data-pagefind-body>
     <div class="article-header__meta-row">
-      <a href={`/categories/${slugify(category)}/`} class="badge badge--category">{category}</a>
-      <span class="meta">
+      <a href={`/categories/${slugify(category)}/`} class="badge badge--category" data-pagefind-meta="category">{category}</a>
+      <span class="meta" data-pagefind-meta={`date:${pubDateLabel}`}>
         <FormattedDate date={pubDate} />
         <span class="dot">·</span>
         <span class="read">{mins} min read</span>
@@ -138,7 +146,7 @@ const jsonLd = {
     )
   }
 
-  <article class="prose">
+  <article class="prose" data-pagefind-body>
     <slot />
   </article>
 

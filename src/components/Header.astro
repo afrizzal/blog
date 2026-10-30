@@ -8,6 +8,7 @@ const path = Astro.url.pathname;
 const isPosts = path === '/' || /^\/\d+\/$/.test(path) || path.startsWith('/blog');
 const isCategories = path.startsWith('/categories');
 const isTags = path.startsWith('/tags');
+const isSearch = path.startsWith('/search');
 ---
 
 <nav class="nav" aria-label="Primary">
@@ -21,6 +22,7 @@ const isTags = path.startsWith('/tags');
       <a class="nav__link" href="/" aria-current={isPosts ? 'page' : undefined}>Posts</a>
       <a class="nav__link" href="/categories/" aria-current={isCategories ? 'page' : undefined}>Categories</a>
       <a class="nav__link" href="/tags/" aria-current={isTags ? 'page' : undefined}>Tags</a>
+      <a class="nav__link" href="/search/" aria-current={isSearch ? 'page' : undefined}>Search</a>
       <a class="nav__link" href="/rss.xml">RSS</a>
       <a class="nav__cta" href={PORTFOLIO_URL} target="_blank" rel="noopener">Portfolio <span class="arrow">↗</span></a>
     </div>
