@@ -54,11 +54,14 @@ npm run build      # menghasilkan folder dist/ (+ indeks pencarian dist/pagefind
 npm run preview    # cek hasil build lokal
 ```
 
-Halaman `/search/` memakai [Pagefind](https://pagefind.app): script `build` menjalankan
+Pencarian memakai [Pagefind](https://pagefind.app): script `build` menjalankan
 `pagefind --site dist` setelah `astro build`, dan yang diindeks hanya bagian bertanda
 `data-pagefind-body` di `BlogPost.astro` (judul, lead, tag, isi artikel). Pengecualian
-selector ada di `pagefind.yml`. Indeks hanya ada setelah build, jadi di `npm run dev`
-halaman search menampilkan pesan "index isn't available" — pakai `npm run preview`.
+selector ada di `pagefind.yml`. Ikon kaca pembesar di nav (atau `Ctrl/⌘+K`) membuka
+dialog pencarian dan baru memuat bundle Pagefind saat pertama dipakai (`Header.astro`);
+halaman `/search/` tetap ada sebagai fallback tanpa JS dan untuk link `?q=`. Indeks hanya
+ada setelah build, jadi di `npm run dev` ikon itu jatuh ke `/search/` yang menampilkan
+pesan "index isn't available" — pakai `npm run preview`.
 
 ## Deploy otomatis (push → live) — Hostinger Git deployment
 

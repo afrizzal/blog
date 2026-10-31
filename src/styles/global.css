@@ -269,6 +269,23 @@ a:focus-visible { border-radius: var(--radius-sm); }
 }
 .nav__burger { display: none; }
 
+/* Search trigger — a framed icon button. DOM order puts it before the links
+   so phones can show it beside the burger; on desktop `order` moves it past
+   the Portfolio CTA, and the negative margin trims the row gap to 8px. */
+.nav__search {
+  order: 1;
+  margin-left: calc(var(--space-2) - var(--space-6));
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; flex: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease),
+              background var(--dur) var(--ease);
+}
+.nav__search:hover { color: var(--text-primary); border-color: var(--border-strong); background: var(--bg-elevated); }
+.nav__search[aria-current="page"] { color: var(--text-primary); border-color: var(--accent); }
+
 /* ===========================================================================
    FOOTER
    =========================================================================== */
@@ -841,9 +858,11 @@ a.tag:active { transform: translateY(1px); }
   .nav__link { padding: var(--space-3); border-radius: var(--radius-md); }
   .nav__link[aria-current="page"]::after { display: none; }
   .nav__cta { margin-left: 0; justify-content: center; }
+  /* Search sits just left of the burger and takes over its auto margin. */
+  .nav__search { order: 0; margin-left: auto; width: 38px; height: 38px; background: var(--bg-card); }
   .nav__burger {
     display: inline-flex; align-items: center; justify-content: center;
-    margin-left: auto; width: 38px; height: 38px;
+    width: 38px; height: 38px;
     border: 1px solid var(--border); border-radius: var(--radius-md);
     background: var(--bg-card); color: var(--text-primary);
   }
@@ -865,8 +884,8 @@ a.tag:active { transform: translateY(1px); }
   .nav__toggle:focus-visible ~ .nav__burger { box-shadow: var(--focus-ring); }
 }
 
-/* Just above the collapse point the six nav items run ~10px past the row;
-   tighter link padding keeps the Portfolio button inside it. */
+/* Just above the collapse point the links, CTA and search button run past
+   the row; tighter link padding keeps them inside it. */
 @media (min-width: 641px) and (max-width: 720px) {
   .nav__link { padding-inline: var(--space-2); }
 }
@@ -1289,3 +1308,105 @@ a.tag:active { transform: translateY(1px); }
   color: var(--text-secondary);
 }
 .prose .footnotes p { color: var(--text-secondary); }
+
+/* ===========================================================================
+   SEARCH  — Pagefind Component UI on /search/ and in the nav dialog
+   (Header.astro). Pagefind renders its own markup, so the rules are global
+   and anchored to .search-ui; `.search-ui[data-pf-theme]` outranks the
+   bundle's own :root / [data-pf-theme] variable defaults.
+   =========================================================================== */
+.search-ui[data-pf-theme='dark'] {
+  --pf-text: var(--text-primary);
+  --pf-text-secondary: var(--text-secondary);
+  --pf-text-muted: var(--text-muted);
+  --pf-background: var(--bg-card);
+  --pf-border: var(--border);
+  --pf-border-focus: var(--accent);
+  --pf-skeleton: var(--bg-subtle);
+  --pf-skeleton-shine: var(--bg-elevated);
+  --pf-hover: var(--bg-elevated);
+  --pf-mark: var(--text-primary);
+  --pf-outline-focus: var(--accent-ring);
+  --pf-font: var(--font-sans);
+  --pf-input-height: 48px;
+  --pf-input-font-size: 1rem; /* 16px+ keeps iOS from zooming on focus */
+  --pf-summary-font-size: var(--fs-meta);
+  --pf-border-radius: var(--radius-md);
+  --pf-results-gap: var(--space-3);
+  --pf-shadow-lg: var(--shadow-pop);
+  --pf-modal-backdrop: rgba(6, 11, 23, 0.72);
+  --pf-modal-max-width: 680px;
+}
+.search-ui pagefind-summary {
+  display: block;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.search-result { list-style: none; }
+.search-result__meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: 0.04em;
+  color: var(--cyan);
+}
+.search-result__title {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: var(--fs-h4);
+  font-weight: var(--weight-semibold);
+  line-height: var(--lh-snug);
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+.search-result__title:hover { color: var(--accent-hover); }
+.search-result__excerpt {
+  margin-top: var(--space-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  color: var(--text-secondary);
+  overflow-wrap: break-word;
+}
+.search-result mark {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  border-radius: 3px;
+  padding-inline: 2px;
+}
+.search-result__sections {
+  margin-top: var(--space-3);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.search-result__sections li { list-style: none; }
+.search-result__sections a { font-size: var(--fs-sm); color: var(--text-secondary); }
+.search-result__sections a::before { content: '§ '; color: var(--text-muted); }
+.search-result__sections a:hover { color: var(--accent-hover); }
+
+/* /search/ page: results are cards on the page background. */
+.search { max-width: var(--measure-prose); }
+.search pagefind-summary { margin-block: var(--space-4) var(--space-2); }
+.search .search-result {
+  padding: var(--space-5) var(--space-6);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--dur) var(--ease);
+}
+.search .search-result:hover,
+.search .search-result:focus-within { border-color: var(--border); }
+.search__unavailable { margin-top: var(--space-4); color: var(--text-secondary); }
+.search__unavailable a { color: var(--accent); }
+
+/* Nav dialog: results are flat rows inside the card-coloured panel. */
+pagefind-modal.search-ui .search-result {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  transition: background var(--dur) var(--ease);
+}
+pagefind-modal.search-ui .search-result:hover,
+pagefind-modal.search-ui .search-result:focus-within { background: var(--bg-subtle); }
+pagefind-modal.search-ui .search-result__title { margin-top: var(--space-1); font-size: var(--fs-base); }
+pagefind-modal.search-ui pagefind-summary { padding-inline: var(--space-4); }

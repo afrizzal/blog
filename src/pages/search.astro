@@ -1,23 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-// Pagefind result template. Kept as a string because Astro would otherwise
-// read its {{ }} placeholders as expressions. meta.category and meta.date come
-// from data-pagefind-meta in BlogPost.astro.
-const resultTemplate = `<script type="text/pagefind-template">
-  <li class="search-result">
-    <p class="search-result__meta">{{ meta.category }}{{#if meta.date}} · {{ meta.date }}{{/if}}</p>
-    <a class="search-result__title" href="{{ meta.url | default(url) | safeUrl }}">{{ meta.title }}</a>
-    {{#if excerpt}}<p class="search-result__excerpt">{{+ excerpt +}}</p>{{/if}}
-    {{#if sub_results}}
-    <ul class="search-result__sections">
-      {{#each sub_results as sub}}
-      <li><a href="{{ sub.url | safeUrl }}">{{ sub.title }}</a></li>
-      {{/each}}
-    </ul>
-    {{/if}}
-  </li>
-</script>`;
+import { SEARCH_RESULT_TEMPLATE } from '../utils/searchTemplate';
 ---
 
 <BaseLayout title="Search — Afrizzal Blog" description="Search every published post by keyword.">
@@ -32,13 +15,15 @@ const resultTemplate = `<script type="text/pagefind-template">
 
   {/* Pagefind Component UI. /pagefind/ is generated after `astro build` (see
       the build script), so it only exists in a production build, never in
-      `astro dev`. The script loads on this page only. */}
-  <div class="search" data-pf-theme="dark">
+      `astro dev`. Elsewhere the nav magnifier opens the same search in a
+      dialog; this page is its no-JS fallback and the target of ?q= links.
+      Styles live in global.css (SEARCH) because the dialog shares them. */}
+  <div class="search search-ui" data-pf-theme="dark">
     <pagefind-config bundle-path="/pagefind/"></pagefind-config>
     <pagefind-input placeholder="Search posts…" autofocus></pagefind-input>
     <pagefind-summary></pagefind-summary>
     <pagefind-results max-sub-results="2">
-      <Fragment set:html={resultTemplate} />
+      <Fragment set:html={SEARCH_RESULT_TEMPLATE} />
     </pagefind-results>
     <p class="search__unavailable" hidden>
       The search index isn't available here (it only exists in a production build). Browse by
@@ -71,96 +56,3 @@ const resultTemplate = `<script type="text/pagefind-template">
     }
   </script>
 </BaseLayout>
-
-<style is:global>
-  /* Pagefind renders its own markup inside these elements, so the rules are
-     global but anchored to .search. Its CSS variables map onto the site tokens. */
-  .search[data-pf-theme='dark'] {
-    --pf-text: var(--text-primary);
-    --pf-text-secondary: var(--text-secondary);
-    --pf-text-muted: var(--text-muted);
-    --pf-background: var(--bg-card);
-    --pf-border: var(--border);
-    --pf-border-focus: var(--accent);
-    --pf-skeleton: var(--bg-subtle);
-    --pf-skeleton-shine: var(--bg-elevated);
-    --pf-hover: var(--bg-elevated);
-    --pf-mark: var(--text-primary);
-    --pf-outline-focus: var(--accent-ring);
-    --pf-font: var(--font-sans);
-    --pf-input-height: 48px;
-    --pf-input-font-size: 1rem;
-    --pf-summary-font-size: var(--fs-meta);
-    --pf-border-radius: var(--radius-md);
-    --pf-results-gap: var(--space-3);
-    max-width: var(--measure-prose);
-  }
-
-  .search pagefind-summary {
-    display: block;
-    margin-block: var(--space-4) var(--space-2);
-    font-family: var(--font-mono);
-    color: var(--text-muted);
-  }
-
-  .search-result {
-    list-style: none;
-    padding: var(--space-5) var(--space-6);
-    background: var(--bg-card);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    transition: border-color var(--dur) var(--ease);
-  }
-  .search-result:hover,
-  .search-result:focus-within { border-color: var(--border); }
-
-  .search-result__meta {
-    font-family: var(--font-mono);
-    font-size: var(--fs-eyebrow);
-    letter-spacing: 0.04em;
-    color: var(--cyan);
-  }
-  .search-result__title {
-    display: block;
-    margin-top: var(--space-2);
-    font-size: var(--fs-h4);
-    font-weight: var(--weight-semibold);
-    line-height: var(--lh-snug);
-    color: var(--text-primary);
-    text-wrap: balance;
-  }
-  .search-result__title:hover { color: var(--accent-hover); }
-  .search-result__excerpt {
-    margin-top: var(--space-2);
-    font-size: var(--fs-sm);
-    line-height: var(--lh-body);
-    color: var(--text-secondary);
-    overflow-wrap: break-word;
-  }
-  .search-result mark {
-    background: var(--accent-soft);
-    color: var(--text-primary);
-    border-radius: 3px;
-    padding-inline: 2px;
-  }
-  .search-result__sections {
-    margin-top: var(--space-3);
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-  .search-result__sections li { list-style: none; }
-  .search-result__sections a {
-    font-size: var(--fs-sm);
-    color: var(--text-secondary);
-  }
-  .search-result__sections a::before { content: '§ '; color: var(--text-muted); }
-  .search-result__sections a:hover { color: var(--accent-hover); }
-
-  .search__unavailable {
-    margin-top: var(--space-4);
-    color: var(--text-secondary);
-  }
-  .search__unavailable a { color: var(--accent); }
-</style>

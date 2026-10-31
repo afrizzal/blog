@@ -1,5 +1,6 @@
 ---
 import { PORTFOLIO_URL } from '../consts';
+import { SEARCH_RESULT_TEMPLATE } from '../utils/searchTemplate';
 
 // Highlight the active section. trailingSlash is 'always', so every path
 // ends in "/". "Posts" also covers the paginated index (/2/, /3/ …) and
@@ -17,14 +18,133 @@ const isSearch = path.startsWith('/search');
         CSS-only mobile disclosure (`.nav__toggle:checked ~ …`) works with no JS. */}
     <input type="checkbox" id="navt" class="nav__toggle sr-only" aria-label="Toggle menu" />
     <a class="logo" href="/"><span class="prompt">&gt;</span> afrizzal<span class="path">/blog</span><span class="caret" aria-hidden="true"></span></a>
+    {/* A plain link to /search/; the script below turns it into the dialog
+        opener. It sits outside .nav__links so phones reach it without the menu. */}
+    <a
+      class="nav__search"
+      href="/search/"
+      aria-label="Search posts"
+      aria-keyshortcuts="Control+K Meta+K"
+      title="Search (Ctrl K)"
+      aria-current={isSearch ? 'page' : undefined}
+      data-search-trigger
+    >
+      <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m20 20-3.5-3.5"></path>
+      </svg>
+    </a>
     <label for="navt" class="nav__burger"><span></span></label>
     <div class="nav__links">
       <a class="nav__link" href="/" aria-current={isPosts ? 'page' : undefined}>Posts</a>
       <a class="nav__link" href="/categories/" aria-current={isCategories ? 'page' : undefined}>Categories</a>
       <a class="nav__link" href="/tags/" aria-current={isTags ? 'page' : undefined}>Tags</a>
-      <a class="nav__link" href="/search/" aria-current={isSearch ? 'page' : undefined}>Search</a>
       <a class="nav__link" href="/rss.xml">RSS</a>
       <a class="nav__cta" href={PORTFOLIO_URL} target="_blank" rel="noopener">Portfolio <span class="arrow">↗</span></a>
     </div>
   </div>
 </nav>
+
+{/* Inert until first use: the script clones it into <body> after loading the
+    Pagefind bundle, so pages that never search ship no search code. */}
+<template id="search-dialog">
+  <pagefind-config bundle-path="/pagefind/" excerpt-length="24"></pagefind-config>
+  <pagefind-modal class="search-ui" data-pf-theme="dark">
+    <pagefind-modal-header>
+      <pagefind-input placeholder="Search posts…"></pagefind-input>
+    </pagefind-modal-header>
+    <pagefind-modal-body>
+      <pagefind-summary></pagefind-summary>
+      <pagefind-results max-sub-results="1">
+        <Fragment set:html={SEARCH_RESULT_TEMPLATE} />
+      </pagefind-results>
+    </pagefind-modal-body>
+    <pagefind-modal-footer>
+      <pagefind-keyboard-hints></pagefind-keyboard-hints>
+    </pagefind-modal-footer>
+  </pagefind-modal>
+</template>
+
+<script>
+  // Progressive enhancement: the magnifier (and Ctrl/Cmd+K) opens a Pagefind
+  // dialog instead of navigating to /search/. The bundle (~55 KB gzipped plus
+  // index chunks) loads on first intent; if it can't load (e.g. `astro dev`,
+  // which has no index) the click falls through to /search/.
+  type SearchModal = HTMLElement & { open(): void; isOpen: boolean };
+
+  const trigger = document.querySelector<HTMLAnchorElement>('[data-search-trigger]');
+  // /search/ has its own box, so the trigger just focuses it there.
+  const onSearchPage = document.querySelector('.search') !== null;
+  const BUNDLE = '/pagefind/';
+  let loading: Promise<void> | undefined;
+
+  const load = () =>
+    (loading ??= new Promise<void>((resolve, reject) => {
+      const css = Object.assign(document.createElement('link'), {
+        rel: 'stylesheet',
+        href: `${BUNDLE}pagefind-component-ui.css`,
+      });
+      const js = Object.assign(document.createElement('script'), {
+        type: 'module',
+        src: `${BUNDLE}pagefind-component-ui.js`,
+      });
+      let pending = 2;
+      const done = () => --pending === 0 && resolve();
+      const fail = () => reject(new Error('Search bundle unavailable'));
+      css.addEventListener('load', done);
+      js.addEventListener('load', done);
+      css.addEventListener('error', fail);
+      js.addEventListener('error', fail);
+      document.head.append(css, js);
+    }));
+
+  async function openSearch() {
+    if (onSearchPage) {
+      const input = document.querySelector<HTMLInputElement>('.search pagefind-input input');
+      input?.focus();
+      input?.select();
+      return;
+    }
+    try {
+      await load();
+    } catch {
+      if (trigger) location.href = trigger.href;
+      return;
+    }
+    let modal = document.querySelector<SearchModal>('pagefind-modal');
+    if (!modal) {
+      const tpl = document.getElementById('search-dialog') as HTMLTemplateElement;
+      document.body.append(tpl.content.cloneNode(true));
+      await customElements.whenDefined('pagefind-modal');
+      // Let the modal build its <dialog> before opening it.
+      await new Promise(requestAnimationFrame);
+      modal = document.querySelector<SearchModal>('pagefind-modal');
+    }
+    if (modal && !modal.isOpen) modal.open();
+  }
+
+  if (trigger) {
+    trigger.setAttribute('aria-haspopup', 'dialog');
+    if (/Mac|iPhone|iPad/.test(navigator.userAgent)) trigger.title = 'Search (⌘K)';
+    trigger.addEventListener('click', (e) => {
+      // Modified clicks keep their link behaviour (new tab, etc.).
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      openSearch();
+    });
+    // Warm the bundle as soon as the pointer or focus heads for the trigger.
+    if (!onSearchPage) {
+      for (const type of ['pointerenter', 'focus', 'touchstart']) {
+        trigger.addEventListener(type, () => load().catch(() => {}), { once: true, passive: true });
+      }
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() !== 'k' || !(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return;
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+    e.preventDefault();
+    openSearch();
+  });
+</script>
