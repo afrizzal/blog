@@ -77,10 +77,13 @@ const jsonLd = {
     <a class="back-link" href="/"><span class="arrow">←</span> All posts</a>
   </div>
 
-  {/* data-pagefind-body marks what /search/ indexes: this header (title, lead,
-      tags) and the article body. Category and date ride along as result meta. */}
+  {/* data-pagefind-body marks what search indexes: this header (title, lead,
+      tags) and the article body. The meta row stays out of the index text
+      (data-pagefind-ignore) but still supplies category and date as result
+      meta. Pagefind joins adjacent inline elements without a space, hence the
+      explicit spaces between tags (whitespace is inert in the flex row). */}
   <header class="article-header" data-pagefind-body>
-    <div class="article-header__meta-row">
+    <div class="article-header__meta-row" data-pagefind-ignore>
       <a href={`/categories/${slugify(category)}/`} class="badge badge--category" data-pagefind-meta="category">{category}</a>
       <span class="meta" data-pagefind-meta={`date:${pubDateLabel}`}>
         <FormattedDate date={pubDate} />
@@ -96,8 +99,11 @@ const jsonLd = {
     {
       tags.length > 0 && (
         <div class="tag-row">
-          {tags.map((t) => (
-            <a href={`/tags/${slugify(t)}/`} class="tag">{t}</a>
+          {tags.map((t, i) => (
+            <>
+              {i > 0 && ' '}
+              <a href={`/tags/${slugify(t)}/`} class="tag">{t}</a>
+            </>
           ))}
         </div>
       )
